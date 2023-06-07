@@ -1,5 +1,6 @@
 #引入backtrader
 import backtrader as bt
+import pandas as pd
 
 ##supertrend  继承了backtrader的指标（Indicator）
 class SuperTrendATR(bt.Indicator):
@@ -26,6 +27,7 @@ class SuperTrendATR(bt.Indicator):
             self.lines.supertrend[0] = t_up if self.data.close[0] > self.lines.supertrend[-1] else t_down
             self.lines.tsl[0] = t_up if self.data.close[0] > self.lines.supertrend[-1] else t_down
 
+
 #RSI,从backtrader的指标（Indicator）调用
 class RSIIndicator(bt.Indicator):
     lines = ('rsi',)
@@ -44,7 +46,7 @@ class BaseStrategy(bt.Strategy):
         ("st_atr_period", 7),
         ('rsi_period', 7),
         ('portfolio_frac', 0.1),  # 设置默认的资金比例为10%,
-        ('leverage', 1),  # 设置默认的杠杆比例为1，表示无杠杆
+        ('leverage', 20),  # 设置默认的杠杆比例为1，表示无杠杆
     )
 
     ##定义变量
@@ -65,12 +67,12 @@ class BaseStrategy(bt.Strategy):
         self.st_4hour = SuperTrendATR(self.datas[4], factor=self.p.st_factor, atr_period=self.p.st_atr_period)
         # self.st_daily = SuperTrendATR(self.datas[4], factor=self.p.st_factor, atr_period=self.p.st_atr_period)
 
-        # 把supertrend绘图在主体上
-        self.st_1min.plotinfo.plotmaster = self.data0
-        self.st_15min.plotinfo.plotmaster = self.data1
-        self.st_30min.plotinfo.plotmaster = self.data2
-        self.st_1hour.plotinfo.plotmaster = self.data3
-        self.st_4hour.plotinfo.plotmaster = self.data4
+        # # 把supertrend绘图在主体上
+        # self.st_1min.plotinfo.plotmaster = self.data0
+        # self.st_15min.plotinfo.plotmaster = self.data1
+        # self.st_30min.plotinfo.plotmaster = self.data2
+        # self.st_1hour.plotinfo.plotmaster = self.data3
+        # self.st_4hour.plotinfo.plotmaster = self.data4
 
         # RSI
         self.rsi_15min = bt.indicators.RelativeStrengthIndex(self.datas[1], period=self.p.rsi_period)
@@ -88,6 +90,7 @@ class BaseStrategy(bt.Strategy):
         ##定义每个策略的仓位
         self.positions_state = {i: 0 for i in range(13)}  # Initialize positions for 13 strategies
         self.size = {i: 0 for i in range(13)}  # Initialize size for 13 strategies
+
 
     def next(self):
         pos = self.getposition().size
@@ -135,9 +138,11 @@ class BaseStrategy(bt.Strategy):
 
         # 记录下已执行的交易
         self.bar_executed = len(self)
+
+
+
+
     ################开仓条件、开仓多##########################################
-
-
 ##策略1 反转趋势
 class Strategy1(BaseStrategy):
     def next(self):
@@ -281,5 +286,48 @@ class Strategy3(BaseStrategy):
             self.close(size=self.size[11])
             self.positions_state[11] = 0
 
+
+##装载行情数据、策略
+cerebro = bt.Cerebro()
+#装载数据
+from datetime import datetime
+data_1m = bt.feeds.GenericCSVData(
+    dataname='ETH-2023-3-1M-clean.csv',
+    dtformat=lambda x: datetime.strptime(x, '%Y-%m-%d %H:%M:%S'),
+    timeframe=bt.TimeFrame.Minutes,
+    compression=1,
+    datetime=0,
+    high=1,
+    low=2,
+    open=3,
+    close=4,
+    volume=5,
+    openinterest=-1
+)
+
+##数据合成  用一分钟合成 15、30、60……
+data_1m = cerebro.adddata(data_1m)
+data_15m = cerebro.resampledata(data_1m, timeframe=bt.TimeFrame.Minutes, compression=15)
+data_30m = cerebro.resampledata(data_1m, timeframe=bt.TimeFrame.Minutes, compression=30)
+data_1h = cerebro.resampledata(data_1m, timeframe=bt.TimeFrame.Minutes, compression=60)
+data_4h = cerebro.resampledata(data_1m, timeframe=bt.TimeFrame.Minutes, compression=240)
+
+# 载入三个策略
+cerebro.addstrategy(Strategy1)
+cerebro.addstrategy(Strategy2)
+cerebro.addstrategy(Strategy3)
+cerebro.broker.setcash(1000000.0)
+
+# 设置保证金比例。例如，设置为0.1表示10%的保证金  #前面设置了
+cerebro.broker.setcommission(margin=0.1, commission=1.5)
+
+# 输出初始资金
+print('Starting Portfolio Value: %.2f' % cerebro.broker.getvalue())
+
+# 假设已经运行了策略，结果保存在result变量中
+results = cerebro.run()
+
+# 输出最终资金
+print('Final Portfolio Value: %.2f' % cerebro.broker.getvalue())
 
 
