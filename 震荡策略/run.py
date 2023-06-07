@@ -1,6 +1,6 @@
 import ccxt
 from SuperRsi import rsi, supertrend
-from SuperRsiTrend import MyStrategy
+from RsiShockGrid import MyStrategy
 import pandas as pd
 import time
 import math
