@@ -160,8 +160,8 @@ def run():
 
 #----------------------------------------------------------------------------------
 #    #  调用Mystrategy里的calculate_signals
-        strategy.calculate_signals_1(position_size)
-        strategy.calculate_signals_2(position_size)
+        strategy.calculate_signals_1()
+        strategy.calculate_signals_2()
 
         ## 定义交易必须大于某一个值
         if 4.3 > df_15m['close'].iloc[-1] > 1.1:
