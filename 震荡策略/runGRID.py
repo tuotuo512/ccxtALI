@@ -79,8 +79,8 @@ def run():
         return False
 
     # 上下区间的数值
-    x = 1750  # 上区间数值，根据实际情况填写
-    y = 1700  # 下区间数值，根据实际情况填写
+    x = 1730  # 上区间数值，根据实际情况填写
+    y = 1720  # 下区间数值，根据实际情况填写
     z = 7  # 网格数量
 
     #   开始循环
@@ -107,14 +107,14 @@ def run():
         total_capital = exchange.fetch_balance()['total']['USDT']
         # print('===程序新开始===，可用总资金',total_capital)
         # 相当于杠杆
-        r_per = 0.3  # 设置为0.1，表示你愿意将总资金的10%用于单个交易
+        r_per = 0.1  # 设置为0.1，表示你愿意将总资金的10%用于单个交易
         #   币最新价
         #    仓位大小
         position_size = (total_capital * r_per) / latest_price
         min_position_size = 0.03  # ETH最小下单量
 
         #   查看仓位字典
-        print(positions_state)
+        #print(positions_state)
 
         #   如果资金不够，只下单最小单，如果够了， 则（ ETH保留1个小数点）
         if position_size < min_position_size:
@@ -134,7 +134,7 @@ def run():
                 if positions_state[position_index] == 0:
                     buy_price = mid - position_index * price_interval_l  # 挂单买入的价格
                     # 执行开仓操作，根据实际情况调用交易所的平仓接口
-                    order = exchange.create_limit_buy_order(symbol='ETH/USDT:USDT', amount=position_size, price=buy_price)
+                    buy_order = exchange.create_limit_buy_order(symbol='ETH/USDT:USDT', amount=position_size, price=buy_price)
                     # 挂单字典仓位 填入仓位
                     positions_state[position_index] = position_size
 
@@ -142,27 +142,29 @@ def run():
                     print(f"-----成功挂单买入档位{position_index}:", position_size)
 
                     # 如果成交
-                    if order['status'] == 'closed':
+                    if buy_order['status'] == 'closed':
                         # 如果成交，更新已经买入的仓位字典
                         positions_state_buy[position_index] = position_size
                         print(f"-----成功买入档位{position_index}:", position_size)
 # 平仓逻辑
+                    if positions_state_buy[position_index] >0 and positions_state_sell[position_index] and buy_order['status'] == 'closed':
+                            # 卖出操作、卖出网格
+                            sell_price = x - position_index * price_interval_h  # 挂单买入的价格
+                            # 上接刚才的如果买单成交了，立刻挂卖单
+                            sell_order = exchange.create_limit_sell_order(symbol='ETH/USDT:USDT', amount=positions_state[position_index],
+                                                             price=sell_price)
+                            positions_state_sell[position_index] = position_size
+                            print(f"----成功挂单卖出档位{position_index}:", position_size)
 
-                        # 卖出操作、卖出网格
-                        sell_price = x - position_index * price_interval_h  # 挂单买入的价格
-                        # 上接刚才的如果买单成交了，立刻挂卖单
-                        order = exchange.create_limit_sell_order(symbol='ETH/USDT:USDT', amount=positions_state[position_index],
-                                                         price=sell_price)
-                        positions_state_sell[position_index] = position_size
-                        print(f"----成功挂单卖出档位{position_index}:", position_size)
+                            print(positions_state_buy)
 
-                        # 执行平仓操作，根据实际情况调用交易所的买入接口
-                        if order['status'] == 'closed':
-                            # 更新仓位字典
-                            positions_state[position_index] = 0
-                            positions_state_buy[position_index] = 0
-                            print(f"-----成功平仓卖出档位{position_index}:",
-                                  position_size)
+                            # 执行平仓操作，根据实际情况调用交易所的买入接口
+                            if sell_order['status'] == 'closed':
+                                # 更新仓位字典
+                                positions_state[position_index] = 0
+                                positions_state_buy[position_index] = 0
+                                positions_state_sell[position_index] = 0
+                                print(f"-----成功平仓卖出档位{position_index}:",position_size)
 
 
 # 运行程序
