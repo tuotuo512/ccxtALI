@@ -1,7 +1,7 @@
 import numpy as np
 import pandas as pd
 import matplotlib.pyplot as plt
-from getData import  get_data
+from getData import get_data
 
 def roc(data, length=9):
     source = data['close']  # 根据数据中的列名进行调整
