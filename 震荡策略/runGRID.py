@@ -148,24 +148,24 @@ def run():
                         positions_state[position_index] = 0
                         print(f"-----成功买入档位{position_index}:", position_size)
 # 平仓逻辑
-                    if positions_state_buy[position_index] > 0 and positions_state_sell[position_index] == 0:
-                        # 卖出操作、卖出网格
-                        sell_price = x - position_index * price_interval_h  # 挂单买入的价格
-                        # 上接刚才的如果买单成交了，立刻挂卖单
-                        sell_order = exchange.create_limit_sell_order(symbol='ETH/USDT:USDT', amount=position_size,
-                                                         price=sell_price)
-                        positions_state_sell[position_index] = position_size
-                        print(f"----成功挂单卖出档位{position_index}:", position_size)
+                if positions_state_buy[position_index] > 0 and positions_state_sell[position_index] == 0:
+                    # 卖出操作、卖出网格
+                    sell_price = x - position_index * price_interval_h  # 挂单买入的价格
+                    # 上接刚才的如果买单成交了，立刻挂卖单
+                    sell_order = exchange.create_limit_sell_order(symbol='ETH/USDT:USDT', amount=position_size,
+                                                     price=sell_price)
+                    positions_state_sell[position_index] = position_size
+                    print(f"----成功挂单卖出档位{position_index}:", position_size)
 
-                        print(positions_state_buy)
+                    print(positions_state_buy)
 
-                        # 执行平仓操作，根据实际情况调用交易所的买入接口
-                        if sell_order['status'] == 'closed':
-                            # 更新仓位字典
-                            positions_state[position_index] = 0
-                            positions_state_buy[position_index] = 0
-                            positions_state_sell[position_index] = 0
-                            print(f"-----成功平仓卖出档位{position_index}:",position_size)
+                    # 执行平仓操作，根据实际情况调用交易所的买入接口
+                    if sell_order['status'] == 'closed':
+                        # 更新仓位字典
+                        positions_state[position_index] = 0
+                        positions_state_buy[position_index] = 0
+                        positions_state_sell[position_index] = 0
+                        print(f"-----成功平仓卖出档位{position_index}:",position_size)
 
 
 # 运行程序
