@@ -22,7 +22,7 @@ def get_data():
 
     while True:
         # 获取最新的1000根1分钟K线数据
-        data = exchange.fetch_ohlcv('ARB/USDT:USDT', '5m', limit=1000)
+        data = exchange.fetch_ohlcv('ETH/USDT:USDT', '5m', limit=1000)
 
         # 转换数据到pandas DataFrame
         df = pd.DataFrame(data, columns=['timestamp', 'open', 'high', 'low', 'close', 'volume'])
@@ -32,17 +32,6 @@ def get_data():
 
         # 设置timestamp列为索引
         df.set_index('timestamp', inplace=True)
-
-        # # 处理缺失值
-        # df.fillna(df.mean(), inplace=True)
-        #
-        # # 检测异常值（这里使用IQR方法，可以根据需要修改）
-        # Q1 = df.quantile(0.25)
-        # Q3 = df.quantile(0.75)
-        # IQR = Q3 - Q1
-        # df = df[~((df < (Q1 - 1.5 * IQR)) | (df > (Q3 + 1.5 * IQR))).any(axis=1)]
-        #
-        # # 使用新数据进行一些操作，比如更新模型、做出交易决策等
 
         # 暂停一段时间，比如1分钟
         time.sleep(10)
@@ -87,7 +76,7 @@ def get_data():
 df_5m, df_15m, df_30m, df_1h, df_4h = get_data()
 
 
-print(df_15m)#
+#print(df_15m)#
 #
 # 绘制带时间的K线图
 # mpf.plot(df_1m, type='candle', style='binance')

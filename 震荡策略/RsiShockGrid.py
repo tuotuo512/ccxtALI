@@ -1,259 +1,237 @@
-##引入指标
-from SuperRsi import rsi, supertrend
-import pandas as pd
 import ccxt
+import time
 import datetime
+import pytz
+import simplejson as json
+import sys
 
-#总的类，我的交易策略所有东西都在里面
-class MyStrategy:
-    #   初始化每一根K线运行更新 这个FROMgetData ，必须填到init 里面
-    def __init__(self, df_15m, df_30m, df_1h, df_4h):
-        ##定义每个策略的仓位，初始化
-        self.positions_state = {i: 0 for i in range(13)}  # Initialize positions for 13 strategies
-        self.positions = {}  #
-        # 信号初始化
-        self.buy_signal11 = 0
-        self.sell_signal11 = 0
-        self.buy_signal12 = 0
-        self.sell_signal12 = 0
-        self.buy_signal13 = 0
-        self.sell_signal13 = 0
-        self.buy_signal14 = 0
-        self.sell_signal14 = 0
-        #   策略二
-        self.buy_signal21 = 0
-        self.sell_signal21 = 0
-        self.buy_signal22 = 0
-        self.sell_signal22 = 0
-        self.buy_signal23 = 0
-        self.sell_signal23 = 0
-        self.buy_signal24 = 0
-        self.sell_signal24 = 0
-        self.buy_signal25 = 0
-        self.sell_signal25 = 0
+#   类代表网格交易策略中订单的信息
+class Order_info():
+    #   这个类具有一个构造函数 (__init__)，接受两个参数：order_id（默认为0）和 n（默认为0）
+    def __init__(self, order_id=0, n=0):
+        self.id = order_id
+        self.n = n
 
-    #   引入时间周期 函数
-    def set_data(self, df_15m, df_30m, df_1h, df_4h):
-        self.df_15m = df_15m
-        self.df_30m = df_30m
-        self.df_1h = df_1h
-       # self.df_4h = df_4h
+#   GridTrader 类  实现了网格交易策略的主要功能
+class GridTrader():
 
-    #   引入指标函数：  定制数据和指标值
-    def set_indicators(self):
-        self.rsi_15m = rsi(self.df_15m, period=14)
-        self.rsi_30m = rsi(self.df_30m, period=14)
-        self.rsi_1h = rsi(self.df_1h, period=14)
-        #self.rsi_4h = rsi(self.df_4h, period=14)
+    #   它具有一个构造函数 (__init__)，接受一个可选的 file 参数（默认为 'setting.json'）
+    def __init__(self, file='setting.json'):
+        #   构造函数使用 read_setting 方法（稍后解释）从指定的 JSON 文件中读取交易设置，并将日志文件路径分配给 self.logfile。
+        info = GridTrader.read_setting(file)
+        self.logfile = info['LOGFILE']
 
-        self.supertrend_15m = supertrend(self.df_15m, factor=3, period=10)
-        self.supertrend_30m = supertrend(self.df_30m, factor=3, period=10)
-        self.supertrend_1h = supertrend(self.df_1h, factor=3, period=10)
-        #self.supertrend_4h = supertrend(self.df_4h, factor=3, period=10)
+        #   如果设置中的 'sub_account' 字段不为空，它使用 API 密钥、密钥和子账户信息创建 FTX 交易所类的实例 (ccxt.ftx)。
+        if len(info['sub_account']) > 0:
+            self.exchange = ccxt.binance({
+                'verbose': False,
+                'apiKey': f"{info['TwbrGtP4y4epwunioTQwVJu1MucF3lE8cTVIKswQ1PS6FNRPwRRnJIdmVPcJHBpd']}",
+                'secret': f"{info['IbR2CmrZy7aisjKE9kpdFNgqTICyPi1fRyYqc14xv4XFStAeFeEpCS2nU9nRUTC7']}",
+                'enableRateLimit': True,
+                'headers': {'FTX-SUBACCOUNT': f"{info['sub_account']}"},
+                'options': {
+                    'defaultType': 'swap',  # swap=永续
+                },
+                'proxies': {
+                    'http': 'http://127.0.0.1:10809',
+                    'https': 'http://127.0.0.1:10809',
+                }
+            })
+        #   如果 'sub_account' 字段为空，它创建一个常规的 BN 交易所实例，不使用子账户。
+        #   创建的交易所实例被赋值给 self.exchange 变量。
+        else:
+            self.exchange = ccxt.binance({
+                'verbose': False,
+                'apiKey': f"{info['apiKey']}",
+                'secret': f"{info['secret']}",
+                'enableRateLimit': True
+            })
 
-    ## 命名 买入变量和打印 函数
-    def enter_position(self, strategy_name):
-        key = f"{strategy_name}_{datetime.datetime.utcnow()}"
+        self.n = info['grid_level']
 
-    #  print(f"{key}信号买入仓位：{position_size}")
+        self.amount = info['amount']
 
-    ## 命名 卖出变量和输出打印 函数
-    def exit_position(self, strategy_name ):
-        key = f"{strategy_name}_{datetime.datetime.utcnow()}"
+        self.market = info['symbol']
+        self.prof = info['interval_prof']
+        self.start_price = 0
 
-    # print(f"{key}信号平仓仓位：{position_size}")
+        self.startTime = time.time()
 
-##  以下是：交易策略部分calculate_signals 方法中应有相应的错误处理和日志记录==================================================
+        self.vol = {'sell': 0, 'buy': 0}
+        self.val = {'sell': 0, 'buy': 0}
 
-#   第一部分：反转抄底信号函数：  开仓部分，30分、60、4小时   spu突破就买
-    def calculate_signals_1(self, position_size):
+        self.fee = {'coin': 0.0, 'fiat': 0.0}
+        self.liquidity = {'maker': 0.0, 'taker': 0.0}
+        self.track = []
+
+    def send_request(self, task, input1=None, input2=None):
+        tries = 5
+        for i in range(tries):
+            try:
+                if task == "get_last_price":
+                    ticker = self.exchange.fetch_ticker(self.market)
+                    return ticker['last']
+
+                elif task == "get_order":
+                    return self.exchange.fetch_order(input1)["info"]
+
+                elif task == "place_order":
+                    # send_request(self,task,input1=side,input2=price)
+                    side = input1
+                    price = input2
+                    orderid = 0
+                    if side == "buy":
+                        orderid = self.exchange.create_order(symbol=self.market, type='limit', side=side, price=price,
+                                                             amount=self.amount)["id"]
+                    else:
+                        orderid = self.exchange.create_order(symbol=self.market, type='limit', side=side, price=price,
+                                                             amount=self.amount)["id"]
+                    return orderid
+
+                elif task == 'cancel_order':
+                    return self.exchange.cancel_order(id=input1)
+
+                elif task == 'cancel_all_orders':
+                    return self.exchange.cancel_all_orders(symbol=self.market)
+
+                elif task == 'get_order_history':
+                    history = self.exchange.fetch_my_trades(symbol=self.market, limit=50)
+                    return history
+
+                else:
+                    return None
+
+            except ccxt.NetworkError as e:
+                if i < tries - 1:  # i is zero indexed
+                    self.log("NetworkError , try last " + str(i) + "chances" + str(e))
+                    time.sleep(1 + i)
+                    continue
+                else:
+                    self.log(str(e))
+                    raise
+            except ccxt.ExchangeError as e:
+                if i < tries - 1:  # i is zero indexed
+                    self.log(str(e))
+                    time.sleep(0.5)
+                    continue
+                else:
+                    self.log(str(e))
+                    raise
+            break
+
+    def grid_init(self):
+
+        self.send_request(task='cancel_all_orders')
+        self.start_price = self.send_request(task='get_last_price')
+
+        self.order_list = [[], []]  # ['buy','sell']
+
+        for i in range(2):
+            for j in range(1, self.n + 1):
+                price = self.start_price + (2 * i - 1) * j * self.prof
+                orderId = self.send_request(task='place_order', input1=['buy', 'sell'][i], input2=price)
+                self.order_list[i].append(Order_info(order_id=orderId, n=j))
+
+    def loop_job(self):
+
+        for i in range(2):
+            for order in self.order_list[i]:
+                info = self.send_request(task='get_order', input1=order.id)
+                if info['status'] == 'closed':
+                    self.track.append(str(order.id))
+                    self.vol[['buy', 'sell'][i]] += float(info['price']) * self.amount
+                    self.val[['buy', 'sell'][i]] += self.amount
+                    price = self.start_price + (2 * i - 1) * (order.n - 1) * self.prof
+                    orderId = self.send_request(task='place_order', input1=['buy', 'sell'][1 - i], input2=price)
+                    self.order_list[1 - i].append(Order_info(order_id=orderId, n=1 - order.n))
+                    self.order_list[i].remove(order)
+                    msg = f"{['buy', 'sell'][i]} at {self.start_price + (2 * i - 1) * (order.n) * self.prof}, place new {['buy', 'sell'][1 - i]} at {price}."
+                    self.log(msg)
+
+            self.order_list[i] = sorted(self.order_list[i], key=lambda x: x.n)
+
+            while len(self.order_list[i]) < self.n:
+                price = self.start_price + (2 * i - 1) * (self.order_list[i][-1].n + 1) * self.prof
+                orderId = self.send_request(task='place_order', input1=['buy', 'sell'][i], input2=price)
+                self.order_list[i].append(Order_info(order_id=orderId, n=self.order_list[i][-1].n + 1))
+                msg = f"Enlarge grid for {['buy', 'sell'][i]} at {price}"
+                self.log(msg)
+
+            while len(self.order_list[i]) > 2 * self.n:
+                self.send_request(task='cancel_order', input1=self.order_list[i][-1].id)
+                self.order_list[i].pop()
+                msg = f"Cancel order for {['buy', 'sell'][i]} at {self.start_price + (2 * i - 1) * self.order_list[i][-1].n}"
+                self.log(msg)
+
+        order_history = self.send_request(task='get_order_history')
+        order_info = [x['info'] for x in order_history if x['info']['orderId'] in self.track]
+
+        for info in order_info:
+
+            self.liquidity[info['liquidity']] += 1.0
+
+            if info['feeCurrency'] == 'USD':
+                self.fee['fiat'] += float(info['fee'])
+            else:
+                self.fee['coin'] += float(info['fee'])
+
+            self.track.remove(info['orderId'])
+
+    def log(self, msg, withTime=True):
+        timestamp = datetime.datetime.now(pytz.timezone('Asia/Taipei')).strftime("%b %d %Y %H:%M:%S, ")
+        try:
+            f = open(f"{self.logfile}", "a")
+            if withTime:
+                f.write(timestamp + msg + "\n")
+            else:
+                f.write(msg + "\n")
+            f.close()
+        except:
+            pass
+
+    @staticmethod
+    def read_setting(file='setting.json'):
+        with open(file) as json_file:
+            return json.load(json_file)
+
+    def log_trading_info(self):
+        coin = self.market[:self.market.find('/')]
+        fiat = self.market[self.market.find('/') + 1:]
+        self.log("##########.Trading Info.##########")
+        self.log(
+            f"Trade balance: {self.vol['sell'] - self.vol['buy']:+.2f} {fiat}, {self.val['buy'] - self.val['sell']:+.4f} {coin}",
+            withTime=False)
+        trade_return = self.prof * min(self.val['buy'], self.val['sell']) / int(time.time() - self.startTime) * 86400
+        self.log(
+            f"Return: {self.prof * min(self.val['buy'], self.val['sell']):.4f} {fiat}, {trade_return:.4f} {fiat}/Day",
+            withTime=False)
+        self.log(
+            f"Volume: {(self.vol['buy'] + self.vol['sell']):.2f} {fiat}, {(self.vol['buy'] + self.vol['sell']) / int(time.time() - self.startTime) * 86400 :.2f} {fiat}/Day",
+            withTime=False)
+        self.log(
+            f"Maker ratio: {self.liquidity['maker'] / max(self.liquidity['maker'] + self.liquidity['taker'], 1) * 100:.2f}%, Total: {self.liquidity['maker'] + self.liquidity['taker']:.0f}",
+            withTime=False)
+        self.log(f"Fee: {self.fee['fiat']:.8f} {fiat}, {self.fee['coin']:.8f} {coin}", withTime=False)
+        self.log("##########.##########.##########.##########.##########", withTime=False)
+
+    @staticmethod
+    def start(trader):
+        while True:
+            try:
+                trader.grid_init()
+                startTime = time.time()
+                while True:
+                    if int(time.time() - startTime) > 20:
+                        trader.log_trading_info()
+                        startTime = time.time()
+                    trader.loop_job()
+                    time.sleep(0.5)
+            except:
+                continue
 
 
-        #   ——————————————————————————测试————————————————————————————————————————————————
-        #          #  0. 测试：买入逻辑
-        #         if self.df_15m['close'].iloc[-1] < self.supertrend_15m.iloc[-1]  :
-        #             # # 执行买入操作,标记买入为策略1_1
-        #             self.enter_position('strategy1-1')
-        #             # 设置交易信号
-        #             self.buy_signal11 = 1
-        #             print(f"信号买入仓位：{position_size}")
-        #
-        #
-        #         if self.df_15m['close'].iloc[-1] < self.supertrend_15m.iloc[-1] :
-        #             self.exit_position('strategy1-1')
-        #             # 设置交易信号
-        #             self.sell_signal11 = -1
-        #             print(f"信号平仓仓位：{position_size}")
-        #
-        #         #   00. 测试：买入逻辑
-        #         if self.df_15m['close'].iloc[-1] < self.supertrend_15m.iloc[-1] :
-        #             # # 执行买入操作,标记买入为策略1_1
-        #             self.enter_position('strategy1-2')
-        #             # 设置交易信号
-        #             self.buy_signal12 = 1
-        #             print(f"信号买入仓位：{position_size}")
-        #
-        #
-        #         if self.df_15m['close'].iloc[-1] < self.supertrend_15m.iloc[-1] :
-        #             self.exit_position('strategy1-2')
-        #             # 设置交易信号
-        #             self.sell_signal12 = -1
-        #             print(f"信号平仓仓位：{position_size}")
-        #   --------------------------------测试结束--------------------------------------------------------
-        #iloc[]用于基于整数位置的索引。它可以帮助你选择或操作数据。在iloc[]中，数字 -1代表最后一行(最新数据)
-
-        print(datetime.datetime.now())
-        print('最新价：', self.df_30m['close'].iloc[-2])
-        print('15分钟轨道值：', self.supertrend_15m.iloc[-2])  # 打印super上轨参照
-        print('30分钟轨道值：', self.supertrend_30m.iloc[-2])  # 打印super上轨参照
-        print('60分钟轨道值：', self.supertrend_1h.iloc[-2])  # 打印super上轨参照
-
-#   1. 反转，买入逻辑 30分进，30分出
-        if (self.df_30m['close'].iloc[-3] < self.supertrend_30m.iloc[-3] < self.df_30m['close'].iloc[-2]):# \
-            #   执行买入操作,标记买入为策略1-1
-            self.enter_position('strategy1-1')
-            #   设置交易信号
-            self.buy_signal11 = 1
-            print("信号：1-1买入")
-        #   平仓逻辑：小时图super下穿
-        if self.df_30m['close'].iloc[-2] < self.supertrend_30m.iloc[-3] < self.df_30m['close'].iloc[-3]:
-            self.exit_position('strategy1-1')
-            # 设置交易信号
-            self.sell_signal11 = -1
-            print("信号：1-1平仓")
-
-
-#   2. 买入逻辑：小时图进小时图出
-        if self.df_1h['close'].iloc[-3] <= self.supertrend_1h.iloc[-3] < self.df_1h['close'].iloc[-2]:
-            self.enter_position('strategy1-2')
-            self.buy_signal12 = 1
-            print("信号1-2买入")
-        #   卖出逻辑：小时图下穿
-        if self.df_1h['close'].iloc[-2] < self.supertrend_1h.iloc[-3]<self.df_1h['close'].iloc[-3] :
-            self.exit_position('strategy1-2')
-            # 设置交易信号
-            self.sell_signal12 = -1
-            print("信号：1-2平仓")
-
- #   3. 买入逻辑：15分进，30分出，小时图收盘价大于sup，小时图收盘价还小于4小时
-        if (self.df_15m['close'].iloc[-3] <= self.supertrend_15m.iloc[-3] < self.df_15m['close'].iloc[-2]) \
-                and (self.df_1h['close'].iloc[-2] > self.supertrend_1h.iloc[-2]):
-            self.enter_position('strategy1-3')
-            self.buy_signal13 = 1
-            print(f"信号买入仓位：{position_size}")
-        #   卖出逻辑：按照半小时图
-        if self.df_30m['close'].iloc[-2] < self.supertrend_30m.iloc[-3] < self.df_30m['close'].iloc[-3] \
-                or (self.df_15m['close'].iloc[-2] < (0.98 * self.supertrend_15m.iloc[-3])) : #小于suer止损
-            self.exit_position('strategy1-3')
-            # 设置交易信号
-            self.sell_signal13 = -1
-            print("信号：1-3平仓")
-
-#   4. 买入逻辑: 15m进15m出
-        if self.df_15m['close'].iloc[-3] <= self.supertrend_15m.iloc[-3] < self.df_15m['close'].iloc[-2]:
-            self.enter_position('strategy1-4')
-            self.buy_signal14 = 1
-            print(f"信号买入仓位：{position_size}")
-        #   卖出逻辑： 15m跌破
-        if self.df_15m['close'].iloc[-2] < self.supertrend_15m.iloc[-3]<self.df_15m['close'].iloc[-3] :
-            self.exit_position('strategy1-4')
-            # 设置交易信号
-            self.sell_signal14 = -1
-            print("信号：1-4平仓")
-
-#   二.趋势共振单信号函数
-    def calculate_signals_2(self, position_size):
-
-#   5.  买入逻辑：顺势， 15分级别进出
-        if (self.df_15m['close'].iloc[-3] <= self.supertrend_15m.iloc[-3] < self.df_15m['close'].iloc[-2]) and \
-                (self.df_1h['close'].iloc[-2] > self.df_1h['close'].iloc[-3]*0.98): #这里用的小时图的值往下2%
-            self.enter_position('strategy2-1')
-            self.buy_signal21 = 1
-            print("信号：2-1买入")
-        #   卖出逻辑：15分跌破
-        if self.df_15m['close'].iloc[-2] < self.supertrend_15m.iloc[-3] < self.df_15m['close'].iloc[-3]:
-                self.exit_position('strategy2-1')
-                self.sell_signal21 = -1
-                print("信号：2-1平仓")
-
-#   6.  买入逻辑：30分级别顺势
-        if (self.df_30m['close'].iloc[-3] <= self.supertrend_30m.iloc[-3] < self.df_30m['close'].iloc[-2]) and \
-                (self.df_1h['close'].iloc[-2] > self.df_1h['close'].iloc[-3]*0.98): #这里用的小时图的值往下2%
-            self.enter_position('strategy2-2')
-            self.buy_signal22 = 1
-            print("信号：2-2买入")
-        #   卖出逻辑：30分跌破
-        if self.df_30m['close'].iloc[-2] < self.supertrend_30m.iloc[-3]<self.df_30m['close'].iloc[-3]:
-            self.exit_position('strategy2-2')
-            self.sell_signal22 = -1
-            print("信号：2-2平仓")
-
-#   7.  买入逻辑：小时级别  顺势
-        if (self.df_1h['close'].iloc[-3] < self.supertrend_1h.iloc[-3] < self.df_1h['close'].iloc[-2]) and \
-                (self.df_1h['close'].iloc[-2] > self.df_1h['close'].iloc[-3] * 0.98):  # 这里用的小时图的值往下2%
-            self.enter_position('strategy2-3')
-            self.buy_signal23 = 1
-            print("信号：2-3买入")
-        #   卖出逻辑: SUPER跌破
-            if self.df_1h['close'].iloc[-2] < self.supertrend_1h.iloc[-3] < self.df_1h['close'].iloc[-3]:
-                self.exit_position('strategy2-3')
-                self.sell_signal23 = -1
-            print("信号：2-3平仓")
-
-        #rsi
-#   8.  买入逻辑：15分 RSI 超卖 和大趋势向上
-        if (self.rsi_15m .iloc[-3] < 30) and  (self.df_1h['close'].iloc[-2] > self.df_1h['close'].iloc[-3]*0.96):
-            #这里用的小时图的值往下2%
-            self.enter_position('strategy2-4')
-            self.buy_signal24 = 1
-            print("信号：2-4买入")
-        #   卖出逻辑： 30分super跌破
-        if self.rsi_30m.iloc[-3] > 80  :
-            self.exit_position('strategy2-4')
-            self.sell_signal24 = -1
-            print("信号：2-4平仓")
-
- # 9.   买入逻辑：4小时以上，30分rsi超卖 和大趋势向上
-        if  (30 > self.rsi_30m.iloc[-3]) and  (self.df_1h['close'].iloc[-2] > self.df_1h['close'].iloc[-3]*0.96): #这里用的小时图的值往下2%
-            self.enter_position('strategy2-5')
-            self.buy_signal25 = 1
-            print("信号：2-5买入")
-        #   卖出逻辑 30分rsi超买
-        if  self.rsi_30m.iloc[-3] > 80 :
-            self.exit_position('strategy2-5')
-            self.sell_signal25 = -1
-            print("信号：2-5平仓")
-#
-# #
-#
-#     # 二.震荡单的信号
-#     def calculate_signals_3(self, position_size):
-#         # 10. 买入逻辑
-#         if self.df_4h['close'].iloc[-2] <= self.supertrend_4h.iloc[-1] < self.df_4h['close'].iloc[-1]:
-#             self.enter_position('strategy3-1', position_size)
-#             self.signal = 'buy'
-#
-#         # 卖出逻辑
-#         if self.df_4h['close'].iloc[-1] < self.supertrend_4h.iloc[-1]:
-#             self.exit_position('strategy3-1', position_size)
-#             self.signal = 'sell'
-#
-#         # 11. 买入逻辑
-#         if self.self.rsi_15m .iloc[-1] < 30 and self.df_4h['close'].iloc[-1] > self.supertrend_4h.iloc[-1]:
-#             self.enter_position('strategy3-2', position_size)
-#             self.signal = 'buy'
-#
-#         # 卖出逻辑
-#         if self.df_1h['rsi'].iloc[-1] > 70:
-#             self.exit_position('strategy3-2', position_size)
-#             self.signal = 'sell'
-#
-#         # 12. 买入逻辑：
-#         if self.df_1h['rsi'].iloc[-1] < 30 and self.df_4h['close'].iloc[-1] > self.supertrend_4h.iloc[-1]:
-#             self.enter_position('strategy3-3', position_size)
-#             self.signal = 'buy'
-#
-#         # 卖出逻辑：
-#         if self.df_1h['rsi'].iloc[-1] > 70:
-#             self.exit_position('strategy3-3', position_size)
-#             self.signal = 'sell'
+if __name__ == '__main__':
+    if len(sys.argv) > 1:
+        GridTrader.start(trader=GridTrader(file=f'{sys.argv[1]}'))
+    else:
+        GridTrader.start(trader=GridTrader())

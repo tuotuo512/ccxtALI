@@ -71,7 +71,7 @@ pd.options.mode.chained_assignment = None  # default='warn'
 
 
 # 引用-------------------------------------------------------
-df_1m, df_15m, df_30m, df_1h, df_4h = get_data()
+df_5m, df_15m, df_30m, df_1h, df_4h = get_data()
 
 
 
