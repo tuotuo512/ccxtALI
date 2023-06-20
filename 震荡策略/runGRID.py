@@ -2,7 +2,7 @@ import ccxt
 import time
 import math
 
-#   创建一个空字典，用于存《挂单》每个档位的仓位大小
+#   创建一个空字典，用于存  持仓的  每个档位的仓位大小
 positions_state = {
     0: 0,  # 初始仓位大小，
     1: 0,  # 初始仓位大小，
@@ -16,7 +16,7 @@ positions_state = {
     # ... 继续添加其他仓位大小，默认为0
 }
 
-#   创建一个空字典，用于存《成交单》每个档位的仓位大小
+#   创建一个空字典，用于存  买《挂单》 每个档位的仓位大小
 positions_state_buy = {
     0: 0,  # 初始仓位大小，
     1: 0,  # 初始仓位大小，
@@ -27,8 +27,30 @@ positions_state_buy = {
     6: 0,  # 初始仓位大小
     7: 0,  # 初始仓位大小
 }
-
+# 卖  《挂单》 及仓位
 positions_state_sell = {
+    0: 0,  # 初始仓位大小，
+    1: 0,  # 初始仓位大小，
+    2: 0,  # 初始仓位大小
+    3: 0,  # 初始仓位大小
+    4: 0,  # 初始仓位大小
+    5: 0,  # 初始仓位大小
+    6: 0,  # 初始仓位大小
+    7: 0,  # 初始仓位大小
+}
+
+buy_order = {
+    0: 0,  # 初始仓位大小，
+    1: 0,  # 初始仓位大小，
+    2: 0,  # 初始仓位大小
+    3: 0,  # 初始仓位大小
+    4: 0,  # 初始仓位大小
+    5: 0,  # 初始仓位大小
+    6: 0,  # 初始仓位大小
+    7: 0,  # 初始仓位大小
+}
+
+sell_order = {
     0: 0,  # 初始仓位大小，
     1: 0,  # 初始仓位大小，
     2: 0,  # 初始仓位大小
@@ -79,8 +101,8 @@ def run():
         return False
 
     # 上下区间的数值
-    x = 1723  # 上区间数值，根据实际情况填写
-    y = 1713  # 下区间数值，根据实际情况填写
+    x = 1735  # 上区间数值，根据实际情况填写
+    y = 1725  # 下区间数值，根据实际情况填写
     z = 7  # 网格数量
 
     #   开始循环
@@ -101,7 +123,7 @@ def run():
         price_interval_h = (x - mid) / z
 
         # 暂停一段时间，比如1分钟
-        time.sleep(20)
+        time.sleep(15)
 
         #    获取账户的总资金  #加入错误处理机制
         total_capital = exchange.fetch_balance()['total']['USDT']
@@ -111,7 +133,7 @@ def run():
         #   币最新价
         #    仓位大小
         position_size = (total_capital * r_per) / latest_price
-        min_position_size = 0.03  # ETH最小下单量
+        min_position_size = 0.003  # ETH最小下单量
 
         #   查看仓位字典
         # print(positions_state)
@@ -124,79 +146,65 @@ def run():
             position_size = round(position_size, 3)  # 保留小数点后3位
         # print('-------多单准备开仓仓位：',position_size,'-------')
 
-        print(positions_state)
-        print(positions_state_buy)
-        print(positions_state_sell)
-
         # 策略逻辑
         if y <= latest_price <= x:
 
-            #   买卖订单簿 为空
-            buy_orders = {}
-            sell_orders = {}
-
-            # 在这z个档位里
+            # 在这Z个档位里
             for position_index in range(z):
 
-                #  如果买单的 ’挂单字典仓位‘ 没有， 挂满
+                #  第一步：1-7的档位上，如果没有持仓，没有挂单的请看下：轮着挂买单 ； 有时候，价格低，直接成交了，打印成功买入。
                 if positions_state[position_index] == 0 and positions_state_buy[position_index] == 0:
                     buy_price = mid - position_index * price_interval_l  # 挂单买入的价格
-                    # 执行开仓操作，根据实际情况调用交易所的平仓接口
-                    buy_order = exchange.create_limit_buy_order(symbol='ETH/USDT:USDT', amount=position_size,
-                                                                price=buy_price)
+                    # 买开仓
+                    buy_order[position_index] = exchange.create_limit_order(symbol='ETH/USDT:USDT',
+                                                                            amount=position_size,
+                                                                            price=buy_price, side='buy')
+                    # 买挂单 的字典 加 仓位
+                    positions_state_buy[position_index] = position_size
+                    #
+                    print(f"-----挂单买入档位{position_index}:", position_size)
 
-                    # 挂单后 填入仓位字典对应仓位
-                    positions_state[position_index] = position_size
-                    print(f"-----成功挂单档位{position_index}:", position_size)
-
-                    # 存储挂单信息
-                    buy_orders[buy_order['id']] = {
-                        'position_index': position_index,
-                        'order_size': position_size
-                    }
-
-                # 循环检查挂单状态
-                for order_id in buy_orders.keys():
-                    buy_order = exchange.fetch_order(order_id, symbol='ETH/USDT:USDT')
-
-                    if buy_order['status'] == 'closed':
-                        # 如果成交，更新已经买入的仓位字典
-                        positions_state_buy[position_index] = position_size
+                    # 如果买直接成交，更新 ’持仓字典‘
+                    if buy_order[position_index]['status'] == 'closed':
+                        positions_state[position_index] = position_size
                         print(f"-----成功买入档位{position_index}:", position_size)
-                        # print(positions_state)
-                        # print(positions_state_buy)
-                        # print(positions_state_sell)
-                    # 平仓逻辑
 
-                if positions_state_buy[position_index] > 0 and positions_state_sell[position_index] == 0:
+                #   第二步：如果有多单仓位了，挂对应的空单仓位
+                if positions_state[position_index] > 0 and positions_state_sell[position_index] == 0:
                     # 卖出操作、卖出网格
                     sell_price = x - position_index * price_interval_h  # 挂单买入的价格
                     # 上接刚才的如果买单成交了，立刻挂卖单
-                    sell_order = exchange.create_limit_sell_order(symbol='ETH/USDT:USDT', amount=position_size,
-                                                                  price=sell_price)
+                    sell_order[position_index] = exchange.create_limit_order(symbol='ETH/USDT:USDT', amount=position_size,
+                                                                        price=sell_price, side='sell')
+                    #  平仓的 挂单字典 填入
                     positions_state_sell[position_index] = position_size
                     print(f"----成功挂单卖出档位{position_index}:", position_size)
-                    print(positions_state_buy)
 
-                 # 存储挂单信息
-                    sell_orders[sell_order['id']] = {
-                        'position_index': position_index,
-                        'order_size': position_size
-                    }
-
-                # 循环检查挂单状态
-                for order_id in sell_orders.keys():
-                    sell_order = exchange.fetch_order(order_id, symbol='ETH/USDT:USDT')
-
-                    if sell_order['status'] == 'closed':
-                        # 如果成交，更新已经买入的仓位字典
-                        print(f"-----成功平仓卖出档位{position_index}:", position_size)
-
-                        # 更新仓位字典
+                    #   如果成交，初始化字典
+                    if sell_order[position_index]['status'] == 'closed':
+                        # 重置仓位字典
                         positions_state[position_index] = 0
                         positions_state_buy[position_index] = 0
                         positions_state_sell[position_index] = 0
-                        print(f"-----成功平仓卖出档位{position_index}:", position_size)
+
+
+                #  第三步：生成新的订单簿，调用前一个订单簿看看哪个成交了
+
+                # 调用获取未结订单列表；这时候看买入、卖出字典也可以的
+                orders = exchange.fetch_open_orders(symbol='ETH/USDT:USDT')
+
+                # 检查买单是否在未结订单中
+                if buy_order[position_index] not in [order['id'] for order in orders]:
+                    # 买单不在未结订单中，可以假设买单已成交
+                    positions_state_buy[position_index] = position_size
+                    print(f"-----买入挂单已成交，买入档位{position_index}:", position_size)
+
+                if sell_order[position_index] not in [order['id'] for order in orders]:
+                    # 如果之前的卖出挂单已成交，更新仓位字典的相关状态
+                    positions_state[position_index] = 0
+                    positions_state_buy[position_index] = 0
+                    positions_state_sell[position_index] = 0
+                    print(f"-----卖出挂单已成交：买入档位{position_index}")
 
 
 # 运行程序
