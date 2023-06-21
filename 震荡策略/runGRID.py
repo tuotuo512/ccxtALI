@@ -176,8 +176,9 @@ def run():
                     # 卖出操作、卖出网格
                     sell_price = x - position_index * price_interval_h  # 挂单买入的价格
                     # 上接刚才的如果买单成交了，立刻挂卖单
-                    sell_order[position_index] = exchange.create_limit_order(symbol='ETH/USDT:USDT', amount=position_size,
-                                                                        price=sell_price, side='sell')
+                    sell_order[position_index] = exchange.create_limit_order(symbol='ETH/USDT:USDT',
+                                                                             amount=position_size,
+                                                                             price=sell_price, side='sell')
                     #  平仓的 挂单字典 填入
                     positions_state_sell[position_index] = position_size
                     print(f"----成功挂单卖出档位{position_index}:", position_size)
@@ -188,7 +189,6 @@ def run():
                         positions_state[position_index] = 0
                         positions_state_buy[position_index] = 0
                         positions_state_sell[position_index] = 0
-
 
                 #  第三步：生成订单簿，调用前一个订单簿看看哪个成交了
 
@@ -208,6 +208,7 @@ def run():
                     positions_state_sell[position_index] = 0
                     print(f"-----卖出挂单已成交：卖出档位{position_index}")
 
+                orders = exchange.fetch_open_orders(symbol='ETH/USDT:USDT')
                 last_orders = orders
                 return last_orders
 
