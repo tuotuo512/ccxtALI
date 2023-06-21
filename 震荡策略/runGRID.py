@@ -123,11 +123,11 @@ def run():
         price_interval_h = (x - mid) / z
 
         # 暂停一段时间，比如1分钟
-        time.sleep(15)
+        #   time.sleep(15)
 
         #    获取账户的总资金  #加入错误处理机制
         total_capital = exchange.fetch_balance()['total']['USDT']
-        # print('===程序新开始===，可用总资金',total_capital)
+        print('===程序新开始===，可用总资金', total_capital)
         # 相当于杠杆
         r_per = 0.1  # 设置为0.1，表示你愿意将总资金的10%用于单个交易
         #   币最新价
@@ -146,6 +146,8 @@ def run():
             position_size = round(position_size, 3)  # 保留小数点后3位
         # print('-------多单准备开仓仓位：',position_size,'-------')
 
+        time.sleep(15)
+        last_orders = []
         # 策略逻辑
         if y <= latest_price <= x:
 
@@ -174,9 +176,8 @@ def run():
                     # 卖出操作、卖出网格
                     sell_price = x - position_index * price_interval_h  # 挂单买入的价格
                     # 上接刚才的如果买单成交了，立刻挂卖单
-                    sell_order[position_index] = exchange.create_limit_order(symbol='ETH/USDT:USDT',
-                                                                             amount=position_size,
-                                                                             price=sell_price, side='sell')
+                    sell_order[position_index] = exchange.create_limit_order(symbol='ETH/USDT:USDT', amount=position_size,
+                                                                        price=sell_price, side='sell')
                     #  平仓的 挂单字典 填入
                     positions_state_sell[position_index] = position_size
                     print(f"----成功挂单卖出档位{position_index}:", position_size)
@@ -188,23 +189,27 @@ def run():
                         positions_state_buy[position_index] = 0
                         positions_state_sell[position_index] = 0
 
-                #  第三步：生成新的订单簿，调用前一个订单簿看看哪个成交了
+
+                #  第三步：生成订单簿，调用前一个订单簿看看哪个成交了
 
                 # 调用获取未结订单列表；这时候看买入、卖出字典也可以的
                 orders = exchange.fetch_open_orders(symbol='ETH/USDT:USDT')
 
                 # 检查买单是否在未结订单中
-                if buy_order[position_index] not in [order['id'] for order in orders]:
+                if buy_order[position_index] not in [order['id'] for order in last_orders]:
                     # 买单不在未结订单中，可以假设买单已成交
                     positions_state_buy[position_index] = position_size
                     print(f"-----买入挂单已成交，买入档位{position_index}:", position_size)
 
-                if sell_order[position_index] not in [order['id'] for order in orders]:
+                if sell_order[position_index] not in [order['id'] for order in last_orders]:
                     # 如果之前的卖出挂单已成交，更新仓位字典的相关状态
                     positions_state[position_index] = 0
                     positions_state_buy[position_index] = 0
                     positions_state_sell[position_index] = 0
-                    print(f"-----卖出挂单已成交：买入档位{position_index}")
+                    print(f"-----卖出挂单已成交：卖出档位{position_index}")
+
+                last_orders = orders
+                return last_orders
 
 
 # 运行程序
