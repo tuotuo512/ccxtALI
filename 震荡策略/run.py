@@ -47,8 +47,8 @@ print("程序启动")
 def run():
     # 初始化交易所
     exchange = ccxt.binance({
-        'apiKey': 'TwbrGtP4y4epwunioTQwVJu1MucF3lE8cTVIKswQ1PS6FNRPwRRnJIdmVPcJHBpd',
-        'secret': 'IbR2CmrZy7aisjKE9kpdFNgqTICyPi1fRyYqc14xv4XFStAeFeEpCS2nU9nRUTC7',
+        'apiKey': '',
+        'secret': '',
         'enableRateLimit': True,  # 遵守交易所的API请求速率限制
         'options': {
             'defaultType': 'swap',  # swap=永续
@@ -83,8 +83,8 @@ def run():
         return False
 
     # 上下区间的数值 =================================
-    x = 1890  # 上区间数值，根据实际情况填写
-    y = 1880  # 下区间数值，根据实际情况填写
+    x = 1884  # 上区间数值，根据实际情况填写
+    y = 1874  # 下区间数值，根据实际情况填写
     z = 7  # 网格数量
     # ============================================
 
@@ -132,11 +132,14 @@ def run():
 
         time.sleep(10)
 
-        # 策略逻辑
-        if y <= latest_price <= x:
+        # 策略逻辑  交易区间设置
+        if y * 0.98 <= latest_price <= x * 1.02:
 
             # 第一循环，在这Z个档位里=======================
             for position_index in range(z):
+                print(positions_state[position_index])
+                print(positions_state_buy[position_index])
+                print(positions_state_sell[position_index])
                 # 第一挂多：1-7的档位上，如果没有持仓，没有挂单的请看下：轮着挂买单；有时候，价格低，直接成交了，打印成功买入。
                 if positions_state[position_index] == 0 and positions_state_buy[position_index] == 0:
                     buy_price = mid - position_index * price_interval_l  # 挂单买入的价格
@@ -152,14 +155,14 @@ def run():
                     if buy_order['status'] == 'closed':
                         positions_state[position_index] = position_size  # 持仓加入字典
                         positions_state_buy[position_index] = 0  # 清除买挂单的仓位
-                        print(f"-----成功买入档位{position_index}:", position_size)
+                        print(f"-----直接买入档位{position_index}:", position_size)
                     else:
                         # 买单挂单未成交，将其添加到未成交订单列表
                         unfilled_orders.append({'order': buy_order, 'position_index': position_index})
-                        print(f"-----买入挂单未成交，档位{position_index}:", position_size)
+                        print(f"-----挂单买入未成交，档位{position_index}:", position_size)
 
                 # 第二挂空：如果有多单仓位了，挂对应的空单仓位
-                if positions_state[position_index] > 0 and positions_state_buy[position_index] == 0:
+                if positions_state[position_index] > 0 and positions_state_sell[position_index] == 0:
                     # 卖出操作、卖出网格
                     sell_price = x - position_index * price_interval_h  # 挂单买入的价格
                     # 上接刚才的如果买单成交了，立刻挂卖单
@@ -167,18 +170,11 @@ def run():
                                                              amount=position_size,
                                                              price=sell_price, side='sell')
                     # 平仓的挂单字典填入
-                    #positions_state_sell[position_index] = position_size
-                    print(f"----成功挂单卖出档位{position_index}:", position_size)
+                    positions_state_sell[position_index] = position_size
+                    print(f"----挂单成功卖出档位{position_index}:", position_size)
 
-                    # 检查卖单挂单是否成交
-                    if sell_order['status'] == 'closed':
-                        positions_state[position_index] = 0  # 清除该档位的持仓
-                        #positions_state_sell[position_index] = 0  # 清除卖挂单的仓位
-                        print(f"----卖出挂单已成交，档位{position_index}:", position_size)
-                    else:
-                        # 卖单挂单未成交，将其添加到未成交订单列表
-                        unfilled_orders.append({'order': sell_order, 'position_index': position_index})
-                        print(f"----卖出挂单未成交，档位{position_index}:", position_size)
+                    # 把空单填入 列表
+                    unfilled_orders.append({'order': sell_order, 'position_index': position_index})
 
             # 跳出那7个循环，查询挂单状态
             for order_info in unfilled_orders:
@@ -187,25 +183,22 @@ def run():
                 order_id = order['id']
                 order_status = exchange.fetch_order_status(order_id, symbol='ETH/USDT:USDT')
 
-                # 检查订单状态 如果挂的买成交了，持仓加入，挂单归零
+                # 检查订单状态 如果挂的买成交了，
                 if order_status == 'closed' and order['side'] == 'buy':
                     # 买单挂单已成交
                     positions_state[position_index] = position_size
                     positions_state_buy[position_index] = 0
-                    print(f"-----买入挂单已成交，档位{position_index}:", position_size)
+                    print(f"-----挂单买入已成交，档位{position_index}:", position_size)
 
-                # 挂单卖成交：仓位和挂单归零
                 if order_status == 'closed' and order['side'] == 'sell':
                     # 卖单挂单已成交
                     positions_state[position_index] = 0
-                    positions_state_buy[position_index] = 0
-                    print(f"-----卖出挂单已成交，档位{position_index}:", position_size)
+                    positions_state_sell[position_index] = 0
+                    print(f"-----挂单卖出已成交，档位{position_index}:", position_size)
 
-                # 清除列表里已经成交的单子
-                unfilled_orders = [order_info for order_info in unfilled_orders if
-                                   order_info['order']['id'] != order_id]
-            # print(unfilled_orders)
+                # 清除已经成交的单子
+                if order_status == 'closed':
+                    unfilled_orders.remove(order_info)
 
-                print(positions_state[position_index])
-                print(positions_state_buy[position_index])
+
 run()
