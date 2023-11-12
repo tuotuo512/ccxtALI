@@ -2,6 +2,7 @@
 from SuperRsi import rsi, supertrend
 import datetime
 
+
 # 总的类，我的交易策略所有东西都在里面
 class MyStrategy:
     #   初始化每一根K线运行更新 这个FROMgetData ，必须填到init 里面
@@ -57,7 +58,7 @@ class MyStrategy:
 
     #   命名 卖出变量和输出打印 函数
     def exit_position(self, strategy_name):
-       key = f"{strategy_name}_{datetime.datetime.utcnow()}"
+        key = f"{strategy_name}_{datetime.datetime.utcnow()}"
 
     # print(f"{key}信号平仓仓位：{position_size}")
 

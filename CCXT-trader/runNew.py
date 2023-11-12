@@ -1,6 +1,7 @@
 import ccxt
 from SuperRsi import rsi, supertrend
-from NewStrategy import MyStrategy
+# from NewStrategy import MyStrategy
+from SuperRsiTrend import MyStrategy
 import pandas as pd
 import time
 import math
