@@ -26,11 +26,11 @@ def initialize_exchange():
     exchange = ccxt.binance({
         'apiKey': api_key,
         'secret': api_secret,
-        'enableRateLimit': True,
-        'options': {'defaultType': 'swap'},
+        'enableRateLimit': True,  # 遵守交易所的API请求速率限制
+        'options': {'defaultType': 'swap'},  # swap=永续
         'proxies': {
-            'http': 'http://127.0.0.1:10809',
-            'https': 'http://127.0.0.1:10809',
+            'http': 'http://127.0.0.1:18081',
+            'https': 'http://127.0.0.1:18081',
         }
     })
     return exchange
@@ -140,7 +140,7 @@ def calculate_and_execute_trades(strategy, positions_state, exchange, df_15m, df
     total_capital = exchange.fetch_balance()['total']['USDT']
     # print('===程序新开始===，可用总资金',total_capital)
     # 相当于杠杆
-    r_per = 1  # 设置为0.1，表示你愿意将总资金的10%用于单个交易
+    r_per = 0.1  # 设置为0.1，表示你愿意将总资金的10%用于单个交易
     #   币最新价
     close_price = df_15m['close'].iloc[-1]
     #    仓位大小
