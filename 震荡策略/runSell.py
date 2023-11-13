@@ -44,6 +44,9 @@ positions_state_sell = {
 print("程序启动")
 
 
+
+
+
 def run():
     # 初始化交易所
     exchange = ccxt.binance({
@@ -83,6 +86,8 @@ def run():
         return False
 
     # 上下区间的数值 =================================
+
+
     x = 1910  # 上区间数值，根据实际情况填写
     y = 1905 # 下区间数值，根据实际情况填写
     z = 7  # 网格数量

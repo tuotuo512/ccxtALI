@@ -30,15 +30,15 @@ def supertrend(data, period=10, factor=3):
         previous = current - 1
 
         if data['close'].iloc[current] > data['Upper_Band'].iloc[previous]:
-            data['In_Uptrend'].iloc[current] = True
+            data.loc[current, 'In_Uptrend'] = True
         elif data['close'].iloc[current] < data['Lower_Band'].iloc[previous]:
-            data['In_Uptrend'].iloc[current] = False
+            data.loc[current, 'In_Uptrend'] = False
         else:
-            data['In_Uptrend'].iloc[current] = data['In_Uptrend'].iloc[previous]
+            data.loc[current, 'In_Uptrend'] = data['In_Uptrend'].iloc[previous]
             if data['In_Uptrend'][current] and data['Lower_Band'][current] < data['Lower_Band'][previous]:
-                data['Lower_Band'].iloc[current] = data['Lower_Band'][previous]
+                data.loc[current, 'Lower_Band'] = data['Lower_Band'][previous]
             if not data['In_Uptrend'][current] and data['Upper_Band'][current] > data['Upper_Band'][previous]:
-                data['Upper_Band'].iloc[current] = data['Upper_Band'][previous]
+                data.loc[current, 'Upper_Band'] = data['Upper_Band'][previous]
 
     data['supertrend'] = np.where(data['In_Uptrend'], data['Lower_Band'], data['Upper_Band'])
     return data

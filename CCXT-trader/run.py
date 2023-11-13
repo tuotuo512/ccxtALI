@@ -99,11 +99,11 @@ def fetch_and_process_market_data(exchange):
 
 # 4. 计算交易信号和执行交易
 
-def calculate_and_execute_trades(strategy, positions_state, exchange, df_15m, df_30m, df_1h):
+def calculate_and_execute_trades(positions_state, exchange, df_15m, df_30m, df_1h):
     # 计算交易信号和执行交易的逻辑
 
     #  引入仓位
-    positions_state = initialize_positions()
+    # positions_state = initialize_positions()
     #  设置目前持有的策略仓位
     #  1、纯super
     positions_state[0] = 0  # 30m这里是手动填入 目前仓位持仓 1-1
