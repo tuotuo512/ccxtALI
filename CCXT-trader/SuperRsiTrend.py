@@ -34,20 +34,6 @@ class MyStrategy:
         key = f"{strategy_name}_{datetime.datetime.utcnow()}"
         # 记录卖出操作
 
-    def is_crossing_supertrend(self, timeframe, period=-3):
-        df = self.dataframes[timeframe]
-        supertrend = self.indicators[f"supertrend_{timeframe}"]
-        return df['close'].iloc[period] < supertrend.iloc[period] < df['close'].iloc[period - 1]
-
-    def calculate_signals(self):
-        # 实现不同的策略逻辑
-        # 例如：
-        if self.is_crossing_supertrend('30m'):
-            self.enter_position('strategy1-1')
-            self.signals['signal1'] = 1
-            print("信号：1-1买入")
-        # 其他策略逻辑...
-
     #   以下是：交易策略部分calculate_signals 方法中应有相应的错误处理和日志记录==================================================
 
     #   第一部分：反转抄底信号函数：  开仓部分，30分、60、4小时   spu突破就买
@@ -70,7 +56,7 @@ class MyStrategy:
 
         #   第一套策略……
         #   1. 反转，买入逻辑 30分进，30分出
-        if df_30m['close'].iloc[-3] < supertrend_30m.iloc[-3] < df_30m['close'].iloc[-2]:  # \
+        if df_30m['close'].iloc[-3] < supertrend_30m.iloc[-3] < df_30m['close'].iloc[-2]:
             #   执行买入操作,标记买入为策略1-1
             self.enter_position('strategy1-1')
             self.signals['signal11'] = 1  # 设置买入信号
@@ -132,7 +118,7 @@ class MyStrategy:
         supertrend_1h = self.indicators['supertrend_1h']
         rsi_15m = self.indicators['rsi_15m']
         rsi_30m = self.indicators['rsi_30m']
-        rsi_1h = self.indicators['rsi_1h']
+        # rsi_1h = self.indicators['rsi_1h']
 
         #   5.  买入逻辑：顺势， 15分级别进出
         if (df_15m['close'].iloc[-3] <= supertrend_15m.iloc[-3] < df_15m['close'].iloc[-2]) and \

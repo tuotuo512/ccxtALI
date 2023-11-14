@@ -105,7 +105,7 @@ class MyStrategy:
         print('1-1轨道值：', self.supertrend_30m.iloc[-2])  # 打印super上轨参照
 
         #   1. 反转，买入逻辑 30分钟super上穿  大级别仍未突破
-        if (self.df_30m['close'].iloc[-3] < self.supertrend_30m.iloc[-3] < self.df_30m['close'].iloc[-2]):# \
+        if self.df_30m['close'].iloc[-3] < self.supertrend_30m.iloc[-3] < self.df_30m['close'].iloc[-2]:# \
                 #and self.df_30m['close'].iloc[-2] < self.df_4h['close'].iloc[-2]:
             #   执行买入操作,标记买入为策略1-1
             self.enter_position('strategy1-1')

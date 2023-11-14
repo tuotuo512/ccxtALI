@@ -11,7 +11,6 @@ import os
 api_key = os.environ.get('BINANCE_API_KEY')
 api_secret = os.environ.get('BINANCE_API_SECRET')
 
-
 #   创建一个空字典，用于存储每个策略的仓位大小
 def initialize_positions():
     # 初始化仓位状态字典，假设有10个策略（从0到9）
@@ -164,33 +163,33 @@ def calculate_and_execute_trades(positions_state, exchange, df_15m, df_30m, df_1
     strategy.calculate_signals_2()
 
     #   定义交易必须大于某一个值
-    if 4.3 > df_15m['close'].iloc[-1] > 1.1:
+    if 4.3 > df_15m['close'].iloc[-1] > 0.1:
         #   信号一
         #   1.策略1 如果交易信号提示进入仓位，在创建市价订单后，应该检查交易结果。
-        if strategy.buy_signal11 == 1 and positions_state[0] == 0:
+        if strategy.signals['signal11'] == 1 and positions_state[0] == 0:
             # 创建市价买单
             exchange.create_market_order(symbol='ARB/USDT:USDT', side='buy', amount=position_size)
             positions_state[0] = position_size  # 更新仓位信息
             print('----------------------------------------成功买入1-1:', position_size)
             print('strategy1-1上的仓位：', positions_state[0])
 
-        if strategy.sell_signal11 == -1 and positions_state[0] > 0:
+        if strategy.signals['signal11'] == -1 and positions_state[0] > 0:
             # 创建市价卖单
             exchange.create_market_order(symbol='ARB/USDT:USDT', side='sell', amount=positions_state[0])
             print('---------------------------------------成功卖出1-1:', positions_state[0])
             positions_state[0] = 0
-            print(f"1-1平仓后剩余:{positions_state[0]}")
+            print('1-1平仓后剩余',positions_state[0])
 
         #   ————————————
         #       #   2.策略2
-        if strategy.buy_signal12 == 1 and positions_state[1] == 0:
+        if strategy.signals['signal12'] == 1 and positions_state[1] == 0:
             # 创建市价买单
             exchange.create_market_order(symbol='ARB/USDT:USDT', side='buy', amount=position_size)
             positions_state[1] = position_size  # 更新仓位信息
             print('---------------------------------------成功买入1-2:', position_size)
-            print(f"strategy1-2上的仓位：{positions_state[1]}")
+            print('strategy1-2上的仓位', positions_state[1])
 
-        if strategy.sell_signal12 == -1 and positions_state[1] > 0:
+        if strategy.signals['signal12'] == -1 and positions_state[1] > 0:
             # 创建市价卖单
             exchange.create_market_order(symbol='ARB/USDT:USDT', side='sell', amount=positions_state[1])
             print('---------------------------------------成功卖出1-2:', positions_state[1])
@@ -199,14 +198,14 @@ def calculate_and_execute_trades(positions_state, exchange, df_15m, df_30m, df_1
 
         #   ————————————
         #       #   3.策略3
-        if strategy.buy_signal13 == 1 and positions_state[2] == 0:
+        if strategy.signals['signal13'] == 1 and positions_state[2] == 0:
             # 创建市价买单
             exchange.create_market_order(symbol='ARB/USDT:USDT', side='buy', amount=position_size)
             positions_state[2] = position_size  # 更新仓位信息
             print('---------------------------------------成功买入1-3:', position_size)
-            print('strategy1-3上的仓位：', positions_state[2])
+            print('strategy1-3上的仓位:', positions_state[2])
 
-        if strategy.sell_signal13 == -1 and positions_state[2] > 0:
+        if strategy.signals['signal13'] == -1 and positions_state[2] > 0:
             # 创建市价卖单
             exchange.create_market_order(symbol='ARB/USDT:USDT', side='sell', amount=positions_state[2])
             print('---------------------------------------成功卖出1-3:', positions_state[2])
@@ -214,14 +213,14 @@ def calculate_and_execute_trades(positions_state, exchange, df_15m, df_30m, df_1
             print('1-3平仓后剩余:', positions_state[2])
         #   ————————————
         #       #   4.策略4
-        if strategy.buy_signal14 == 1 and positions_state[3] == 0:
+        if strategy.signals['signal14'] == 1 and positions_state[3] == 0:
             # 创建市价买单
             exchange.create_market_order(symbol='ARB/USDT:USDT', side='buy', amount=position_size)
             positions_state[3] = position_size  # 更新仓位信息
             print('---------------------------------------成功买入1-4:', position_size)
-            print(f"strategy1-4上的仓位：{positions_state[3]}")
+            print("strategy1-4上的仓位：{positions_state[3]}")
 
-        if strategy.sell_signal14 == -1 and positions_state[3] > 0:
+        if strategy.signals['signal14'] == -1 and positions_state[3] > 0:
             # 创建市价卖单
             exchange.create_market_order(symbol='ARB/USDT:USDT', side='sell', amount=positions_state[3])
             print('---------------------------------------成功卖出1-4:', positions_state[3])
@@ -231,14 +230,14 @@ def calculate_and_execute_trades(positions_state, exchange, df_15m, df_30m, df_1
         #           信号二   ··##
 
         #       #   5.策略5
-        if strategy.buy_signal21 == 1 and positions_state[4] == 0:
+        if strategy.signals['signal21'] == 1 and positions_state[4] == 0:
             # 创建市价买单
             exchange.create_market_order(symbol='ARB/USDT:USDT', side='buy', amount=position_size)
             positions_state[4] = position_size  # 更新仓位信息
             print('---------------------------------------成功买入2-1:', position_size)
-            print(f"strategy2-1上的仓位：{positions_state[4]}")
+            print('strategy2-1上的仓位:', positions_state[4])
 
-        if strategy.sell_signal21 == -1 and positions_state[4] > 0:
+        if strategy.signals['signal21'] == -1 and positions_state[4] > 0:
             # 创建市价卖单
             exchange.create_market_order(symbol='ARB/USDT:USDT', side='sell', amount=positions_state[4])
             print('---------------------------------------成功卖出2-1:', positions_state[4])
@@ -246,14 +245,14 @@ def calculate_and_execute_trades(positions_state, exchange, df_15m, df_30m, df_1
             print('2-1平仓后剩余:', positions_state[4])
         #   ————————————
         #       #   6.策略6
-        if strategy.buy_signal22 == 1 and positions_state[5] == 0:
+        if strategy.signals['signal22'] == 1 and positions_state[5] == 0:
             # 创建市价买单
             exchange.create_market_order(symbol='ARB/USDT:USDT', side='buy', amount=position_size)
             positions_state[5] = position_size  # 更新仓位信息
             print('---------------------------------------成功买入2-2:', position_size)
             print(f"strategy2-2上的仓位：{positions_state[5]}")
 
-        if strategy.sell_signal22 == -1 and positions_state[5] > 0:
+        if strategy.signals['signal22'] == -1 and positions_state[5] > 0:
             # 创建市价卖单
             exchange.create_market_order(symbol='ARB/USDT:USDT', side='sell', amount=positions_state[5])
             print('---------------------------------------成功卖出2-2:', positions_state[5])
@@ -261,14 +260,14 @@ def calculate_and_execute_trades(positions_state, exchange, df_15m, df_30m, df_1
             print('2-2平仓后剩余:', positions_state[5])
         #   ————————————
         #       #   7.策略7
-        if strategy.buy_signal23 == 1 and positions_state[6] == 0:
+        if strategy.signals['signal23'] == 1 and positions_state[6] == 0:
             # 创建市价买单
             exchange.create_market_order(symbol='ARB/USDT:USDT', side='buy', amount=position_size)
             positions_state[6] = position_size  # 更新仓位信息
             print('---------------------------------------成功买入2-3:', position_size)
             print(f"strategy2-3上的仓位：{positions_state[6]}")
 
-        if strategy.sell_signal23 == -1 and positions_state[6] > 0:
+        if strategy.signals['signal23'] == -1 and positions_state[6] > 0:
             # 创建市价卖单
             exchange.create_market_order(symbol='ARB/USDT:USDT', side='sell', amount=positions_state[6])
             print('---------------------------------------成功卖出2-3:', positions_state[6])
@@ -276,14 +275,14 @@ def calculate_and_execute_trades(positions_state, exchange, df_15m, df_30m, df_1
             print('2-3平仓后剩余:', positions_state[6])
         #   ————————————
         #       #   8.策略8
-        if strategy.buy_signal24 == 1 and positions_state[7] == 0:
+        if strategy.signals['signal24'] == 1 and positions_state[7] == 0:
             # 创建市价买单
             exchange.create_market_order(symbol='ARB/USDT:USDT', side='buy', amount=position_size)
             positions_state[7] = position_size  # 更新仓位信息
             print('---------------------------------------成功买入2-4:', position_size)
             print(f"strategy2-4上的仓位：{positions_state[7]}")
 
-        if strategy.sell_signal24 == -1 and positions_state[7] > 0:
+        if strategy.signals['signal24'] == -1 and positions_state[7] > 0:
             # 创建市价卖单
             exchange.create_market_order(symbol='ARB/USDT:USDT', side='sell', amount=positions_state[7])
             print('---------------------------------------成功卖出2-4:', positions_state[7])
@@ -291,14 +290,14 @@ def calculate_and_execute_trades(positions_state, exchange, df_15m, df_30m, df_1
             print('2-4平仓后剩余:', positions_state[7])
         #   ————————————
         #       #   9.策略9
-        if strategy.buy_signal25 == 1 and positions_state[8] == 0:
+        if strategy.signals['signal25'] == 1 and positions_state[8] == 0:
             # 创建市价买单
             exchange.create_market_order(symbol='ARB/USDT:USDT', side='buy', amount=position_size)
             positions_state[8] = position_size  # 更新仓位信息
             print('---------------------------------------成功买入2-5:', position_size)
             print(f"strategy2-5上的仓位：{positions_state[8]}")
 
-        if strategy.sell_signal25 == -1 and positions_state[8] > 0:
+        if strategy.signals['signal25'] == -1 and positions_state[8] > 0:
             # 创建市价卖单
             exchange.create_market_order(symbol='ARB/USDT:USDT', side='sell', amount=positions_state[8])
             print('---------------------------------------成功卖出2-5:', positions_state[8])
@@ -319,9 +318,9 @@ def run():
         strategy = MyStrategy()
         strategy.set_data(df_15m, df_30m, df_1h)
         strategy.set_indicators()
-        calculate_and_execute_trades(strategy, positions_state, exchange, df_15m, df_30m, df_1h)
+        calculate_and_execute_trades(positions_state, exchange, df_15m, df_30m, df_1h)
 
-        time.sleep(60)  # 等待一段时间
+        time.sleep(20)  # 等待一段时间
 
 
 # 运行程序

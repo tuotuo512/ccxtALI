@@ -1,8 +1,8 @@
 import ccxt
 import pandas as pd
 import time
-# import matplotlib.pyplot as plt
-# import mplfinance as mpf
+import matplotlib.pyplot as plt
+import mplfinance as mpf
 
 # 引入币安API设置的变量
 import os
@@ -92,21 +92,17 @@ def get_data(exchange):
     # 输出结果
 
 # 主循环
-exchange = initialize_exchange()
-while True:
-    df = get_data(exchange)
-    print(df)
-
-    # 绘图
-    # mpf.plot(df, type='candle', style='binance')
-    # plt.show()
-
-    time.sleep(10)  # 等待一段时间
-
-
-print(df_15m)#
+# exchange = initialize_exchange()
+# while True:
+#     # 获取数据
+#     df_5m, df_15m, df_30m, df_1h, df_4h = get_data(exchange)
 #
-# 绘制带时间的K线图
-# mpf.plot(df_1m, type='candle', style='binance')
-# mpf.plot(df_4h, type='candle', style='binance')
-# plt.show()
+#     # 打印15分钟数据的最后10组
+#     print("最后10组15分钟数据:")
+#     print(df_15m.tail(10))  # tail(10)将返回最后10行的数据
+#
+#     # 绘制15分钟的K线图
+#     mpf.plot(df_15m.tail(100), type='candle', style='binance', volume=True, show_nontrading=True, mav=(3,6,9))  # 这里用tail(100)来获取最后100条数据进行绘图
+#     plt.show()
+#
+#     time.sleep(10)  # 等待一段时间，例如60秒

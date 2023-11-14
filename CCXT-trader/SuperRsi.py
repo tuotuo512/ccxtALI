@@ -30,18 +30,18 @@ def supertrend(data, period=10, factor=3):
         previous = current - 1
 
         if data['close'].iloc[current] > data['Upper_Band'].iloc[previous]:
-            data.loc[current, 'In_Uptrend'] = True
+            data.at[data.index[current], 'In_Uptrend'] = True
         elif data['close'].iloc[current] < data['Lower_Band'].iloc[previous]:
-            data.loc[current, 'In_Uptrend'] = False
+            data.at[data.index[current], 'In_Uptrend'] = False
         else:
-            data.loc[current, 'In_Uptrend'] = data['In_Uptrend'].iloc[previous]
-            if data['In_Uptrend'][current] and data['Lower_Band'][current] < data['Lower_Band'][previous]:
-                data.loc[current, 'Lower_Band'] = data['Lower_Band'][previous]
-            if not data['In_Uptrend'][current] and data['Upper_Band'][current] > data['Upper_Band'][previous]:
-                data.loc[current, 'Upper_Band'] = data['Upper_Band'][previous]
+            data.at[data.index[current], 'In_Uptrend'] = data['In_Uptrend'].iloc[previous]
+            if data.at[data.index[current], 'In_Uptrend'] and data['Lower_Band'].iloc[current] < data['Lower_Band'].iloc[previous]:
+                data.at[data.index[current], 'Lower_Band'] = data['Lower_Band'].iloc[previous]
+            if not data.at[data.index[current], 'In_Uptrend'] and data['Upper_Band'].iloc[current] > data['Upper_Band'].iloc[previous]:
+                data.at[data.index[current], 'Upper_Band'] = data['Upper_Band'].iloc[previous]
 
     data['supertrend'] = np.where(data['In_Uptrend'], data['Lower_Band'], data['Upper_Band'])
-    return data
+    return data['supertrend']
 
 
 def rsi(data: pd.DataFrame, period=14):
@@ -49,36 +49,33 @@ def rsi(data: pd.DataFrame, period=14):
     rsi = rsi_indicator.rsi()
     return rsi
 
+#
 # pd.options.mode.chained_assignment = None  # default='warn'
-# #
-# # 引用
-# df, df_15m, df_30m, df_1h, df_4h = get_data()
-
-# ##防止修改原始文件
-# data = df.copy()
 #
-# # 计算 supertrend
-# supertrend(data)
+# from getData import get_data, initialize_exchange
 #
-# # 这将会删除所有'supertrend'列的值为NaN的行
-# data['supertrend'].replace(0, np.nan, inplace=True)
-# data.dropna(subset=['supertrend'], inplace=True)
+# # 初始化交易所
+# exchange = initialize_exchange()
 #
-# plt.figure(figsize=(12, 6))
-# plt.plot(data['close'], label='close')
-# plt.plot(data['supertrend'], label='supertrend', linestyle='--')
-# plt.title('close Price / supertrend')
-# plt.legend(loc='upper left')
-# plt.grid(True)
-# plt.show()
+# # 引用数据
+# df, df_15m, df_30m, df_1h, df_4h = get_data(exchange)
 #
-# # Calculate supertrend
-# supertrend_values = supertrend(data)
 #
-# # Save as a pandas Series
-# supertrend_series = pd.Series(supertrend_values, name="supertrend")
+# # 计算 Supertrend
+# supertrend_data = supertrend(df_15m)
 #
-# # Print the last 100 values
-# print(supertrend_series.tail(100))
+# # 计算 RSI
+# rsi_data = rsi(df_15m)
 #
-# data.to_csv('df_1m.csv')
+#
+# import mplfinance as mpf
+#
+# # 添加 Supertrend 到 DataFrame 用于绘图
+# df_15m['Supertrend'] = supertrend_data['supertrend']
+#
+# # 创建一个额外的图层用于 RSI
+# apds = [mpf.make_addplot(df_15m['Supertrend'], panel=0, color='g', secondary_y=False),
+#         mpf.make_addplot(rsi_data, panel=1, color='r', secondary_y=True)]
+#
+# # 绘制K线图和RSI指标
+# mpf.plot(df_15m, type='candle', style='binance', addplot=apds, volume=True, figratio=(12, 8), figscale=1.2)
