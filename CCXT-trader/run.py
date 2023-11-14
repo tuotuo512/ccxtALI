@@ -126,7 +126,7 @@ def calculate_and_execute_trades(positions_state, exchange, df_15m, df_30m, df_1
     #  1、纯super
     positions_state[0] = 0  # 30m这里是手动填入 目前仓位持仓 1-1
     positions_state[1] = 0  # 1h                          1-2
-    positions_state[2] = 50  # 15m进 30m出              1-3
+    positions_state[2] = 0  # 15m进 30m出              1-3
     positions_state[3] = 0  # 15m进 15m出              1-4
     #   2、顺势super
     positions_state[4] = 0  # 这里15m图        2-1
