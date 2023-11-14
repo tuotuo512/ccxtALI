@@ -34,11 +34,33 @@ class MyStrategy:
         key = f"{strategy_name}_{datetime.datetime.utcnow()}"
         # 记录卖出操作
 
+    #   做一个函数，用来更新交易位置和信号
+    def update_position(self, strategy_name, signal_type):
+        """
+        更新交易位置和信号，并打印信号信息
+        :param strategy_name: 策略名称
+        :param signal_type: 信号类型，1表示买入，-1表示卖出
+        """
+        # 根据信号类型执行相应的操作
+        if signal_type == 1:
+            self.enter_position(strategy_name)
+            action = "买入"
+        elif signal_type == -1:
+            self.exit_position(strategy_name)
+            action = "平仓"
+        else:
+            return  # 如果信号类型不是1或-1，则不执行任何操作
+
+        # 更新信号并打印信息
+        signal_key = f"signal{strategy_name[-2:]}"  # 提取信号编号
+        self.signals[signal_key] = signal_type
+        print(f"信号：{strategy_name} {action}")
+
     #   以下是：交易策略部分calculate_signals 方法中应有相应的错误处理和日志记录==================================================
 
     #   第一部分：反转抄底信号函数：  开仓部分，30分、60、4小时   spu突破就买
     def calculate_signals_1(self):
-        # 在 calculate_signals_1 中使用数据和指标
+        # 在 calculate_signals_1 中调用数据和指标
         df_15m = self.dataframes['15m']
         df_30m = self.dataframes['30m']
         df_1h = self.dataframes['1h']
@@ -57,55 +79,35 @@ class MyStrategy:
         #   第一套策略……
         #   1. 反转，买入逻辑 30分进，30分出
         if df_30m['close'].iloc[-3] < supertrend_30m.iloc[-3] < df_30m['close'].iloc[-2]:
-            #   执行买入操作,标记买入为策略1-1
-            self.enter_position('strategy1-1')
-            self.signals['signal11'] = 1  # 设置买入信号
-            #   设置交易信号
-            print("信号：1-1买入")
+            self.update_position('strategy1-1', 1)  # 买入
         #   平仓逻辑：小时图super下穿
         if df_30m['close'].iloc[-2] < supertrend_30m.iloc[-3] < df_30m['close'].iloc[-3]:
-            self.exit_position('strategy1-1')
-            # 设置交易信号
-            self.signals['signal11'] = -1
-            print("信号：1-1平仓")
+            self.update_position('strategy1-1', -1)
 
         #   2. 买入逻辑：小时图进小时图出
         if df_1h['close'].iloc[-3] <= supertrend_1h.iloc[-3] < df_1h['close'].iloc[-2]:
-            self.enter_position('strategy1-2')
-            self.signals['signal12'] = 1
-            print("信号1-2买入")
+            self.update_position('strategy1-2', 1)
         #   卖出逻辑：小时图下穿
         if df_1h['close'].iloc[-2] < supertrend_1h.iloc[-3] < df_1h['close'].iloc[-3]:
-            self.exit_position('strategy1-2')
-            # 设置交易信号
-            self.signals['signal12'] = -1
-            print("信号：1-2平仓")
+            self.update_position('strategy1-2', -1)
 
         #   3. 买入逻辑：15分进，30分出，小时图收盘价大于sup，小时图收盘价还小于4小时
         if (df_15m['close'].iloc[-3] <= supertrend_15m.iloc[-3] < df_15m['close'].iloc[-2]) \
                 and (df_1h['close'].iloc[-2] > supertrend_1h.iloc[-2]):
-            self.enter_position('strategy1-3')
-            self.signals['signal13'] = 1
-            print("信号1-3买入仓")
+            self.update_position('strategy1-3', 1)
+
         #   卖出逻辑：按照半小时图
         if df_30m['close'].iloc[-2] < supertrend_30m.iloc[-3] < df_30m['close'].iloc[-3] \
                 or (df_15m['close'].iloc[-2] < (0.98 * supertrend_15m.iloc[-3])):  # 小于suer止损
-            self.exit_position('strategy1-3')
-            # 设置交易信号
-            self.signals['signal13'] = -1
-            print("信号：1-3平仓")
+            self.update_position('strategy1-3', -1)
 
         #   4. 买入逻辑: 15m进15m出
         if df_15m['close'].iloc[-3] <= supertrend_15m.iloc[-3] < df_15m['close'].iloc[-2]:
-            self.enter_position('strategy1-4')
-            self.signals['signal14'] = 1
-            print("信号：1-4买入")
+            self.update_position('strategy1-4', 1)
+
         #   卖出逻辑： 15m跌破
         if df_15m['close'].iloc[-2] < supertrend_15m.iloc[-3] < df_15m['close'].iloc[-3]:
-            self.exit_position('strategy1-4')
-            # 设置交易信号
-            self.signals['signal14'] = -1
-            print("信号：1-4平仓")
+            self.update_position('strategy1-4', -1)
 
     #   二.趋势共振单信号函数
     def calculate_signals_2(self):
@@ -123,60 +125,40 @@ class MyStrategy:
         #   5.  买入逻辑：顺势， 15分级别进出
         if (df_15m['close'].iloc[-3] <= supertrend_15m.iloc[-3] < df_15m['close'].iloc[-2]) and \
                 (df_1h['close'].iloc[-2] > df_1h['close'].iloc[-3] * 0.98):  # 这里用的小时图的值往下2%
-            self.enter_position('strategy2-1')
-            self.signals['signal21'] = 1
-            print("信号：2-1买入")
+            self.update_position('strategy2-1', 1)
         #   卖出逻辑：15分跌破
         if df_15m['close'].iloc[-2] < supertrend_15m.iloc[-3] < df_15m['close'].iloc[-3]:
-            self.exit_position('strategy2-1')
-            self.signals['signal21'] = -1
-            print("信号：2-1平仓")
+            self.update_position('strategy2-1', -1)
 
         #   6.  买入逻辑：30分级别顺势
         if (df_30m['close'].iloc[-3] <= supertrend_30m.iloc[-3] < df_30m['close'].iloc[-2]) and \
                 (df_1h['close'].iloc[-2] > df_1h['close'].iloc[-3] * 0.98):  # 这里用的小时图的值往下2%
-            self.enter_position('strategy2-2')
-            self.signals['signal22'] = 1
-            print("信号：2-2买入")
+            self.update_position('strategy2-2', 1)
         #   卖出逻辑：30分跌破
         if df_30m['close'].iloc[-2] < supertrend_30m.iloc[-3] < df_30m['close'].iloc[-3]:
-            self.exit_position('strategy2-2')
-            self.signals['signal22'] = -1
-            print("信号：2-2平仓")
+            self.update_position('strategy2-2', -1)
 
         #   7.  买入逻辑：小时级别  顺势
         if (df_1h['close'].iloc[-3] < supertrend_1h.iloc[-3] < df_1h['close'].iloc[-2]) and \
                 (df_1h['close'].iloc[-2] > df_1h['close'].iloc[-3] * 0.98):  # 这里用的小时图的值往下2%
-            self.enter_position('strategy2-3')
-            self.signals['signal23'] = 1
-            print("信号：2-3买入")
+            self.update_position('strategy2-3', 1)
             #   卖出逻辑: SUPER跌破
             if df_1h['close'].iloc[-2] < supertrend_1h.iloc[-3] < df_1h['close'].iloc[-3]:
-                self.exit_position('strategy2-3')
-                self.signals['signal23'] = -1
-            print("信号：2-3平仓")
+                self.update_position('strategy2-3', -1)
 
         # rsi
         #   8.  买入逻辑：15分 RSI 超卖 和大趋势向上
         if (rsi_15m.iloc[-3] < 30) and (df_1h['close'].iloc[-2] > df_1h['close'].iloc[-3] * 0.96):
             # 这里用的小时图的值往下2%
-            self.enter_position('strategy2-4')
-            self.signals['signal24'] = 1
-            print("信号：2-4买入")
+            self.update_position('strategy3-1', 1)
         #   卖出逻辑： 30分super跌破
         if rsi_30m.iloc[-3] > 80:
-            self.exit_position('strategy2-4')
-            self.signals['signal24'] = -1
-            print("信号：2-4平仓")
+            self.update_position('strategy3-1', -1)
 
         # 9.   买入逻辑：4小时以上，30分rsi超卖 和大趋势向上
         if (30 > rsi_30m.iloc[-3]) and (
                 df_1h['close'].iloc[-2] > df_1h['close'].iloc[-3] * 0.96):  # 这里用的小时图的值往下2%
-            self.enter_position('strategy2-5')
-            self.signals['signal25'] = 1
-            print("信号：2-5买入")
+            self.update_position('strategy3-2', 1)
         #   卖出逻辑 30分rsi超买
         if rsi_30m.iloc[-3] > 80:
-            self.exit_position('strategy2-5')
-            self.signals['signal25'] = -1
-            print("信号：2-5平仓")
+            self.update_position('strategy3-2', -1)
