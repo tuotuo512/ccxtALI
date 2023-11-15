@@ -118,11 +118,8 @@ def execute_trade(exchange, strategy, strategy_number, positions_state, position
 
 # 5. 在主函数中使用循环来处理每个策略
 def calculate_and_execute_trades(positions_state, exchange, df_15m, df_30m, df_1h):
-    # 计算交易信号和执行交易的逻辑
 
-    #  引入仓位
-    # positions_state = initialize_positions()
-    #  设置目前持有的策略仓位
+    #  手动设置目前持有的策略仓位========================================================
     #  1、纯super
     positions_state[0] = 0  # 30m这里是手动填入 目前仓位持仓 1-1
     positions_state[1] = 0  # 1h                          1-2
@@ -136,23 +133,19 @@ def calculate_and_execute_trades(positions_state, exchange, df_15m, df_30m, df_1
     positions_state[7] = 0  # 这里rsi15分进去，30分超买出来  2-4
     positions_state[8] = 0  # 这里30分超卖入场rsi ，30分超买出来     2-5
 
-    # ====================================================================
-    # 1. 计算交易信号：使用MyStrategy的calculate_signals方法,来根据策略,得到交易信号。
-    # 2. 根据交易信号决定是否进入仓位：如果你的交易信号提示,应该进入一个新的仓位，使用enter_position方法来进入仓位。
-    # 3. 根据交易信号决定是否退出仓位：如果你的交易信号提示,应该退出一个仓位，使用exit_position方法来退出仓位。
-    # 创建Strategy1对象
-    #   #   引入策略部分
-    #   创建 MyStrategy 实例: 通过创建实例，才能实际使用这些类中定义的方法和属性。
-    #   创建策略实例
+    #   把需要的东西组合起来====================================================================
+
+    #   调用创建 MyStrategy 实例: 通过创建实例，才能实际使用这些类中定义的方法和属性。
     strategy = MyStrategy()
 
-    #   设置数据
+    #   给这个实例加入K线数据
     strategy.set_data(df_15m, df_30m, df_1h)
 
-    #   设置指标
-    strategy.set_indicators()
+    #  调用MyStrategy里的calculate_signals
+    strategy.calculate_signals_1()
+    strategy.calculate_signals_2()
 
-    #       仓位设置====================================================
+    #   仓位设置管理部分====================================================
     #    仓位必须是0.001的整数倍，总资金/df_15m收盘价 =可下仓位。还需要添加逻辑以处理极端的市场情况
     #    获取账户的总资金  #加入错误处理机制
     total_capital = exchange.fetch_balance()['total']['USDT']
@@ -176,13 +169,9 @@ def calculate_and_execute_trades(positions_state, exchange, df_15m, df_30m, df_1
         position_size = round(position_size, 1)  # 保留小数点后1位
     print('-------多单准备开仓仓位：', position_size, '-------')
 
-    # ----------------------------------------------------------------------------------
+    #   策略循环部分==============================================================
 
     if 4.3 > df_15m['close'].iloc[-1] > 0.1:
-
-        #  调用MyStrategy里的calculate_signals
-        strategy.calculate_signals_1()
-        strategy.calculate_signals_2()
 
         # 遍历所有策略
         for strategy_number in range(1, 10):  # 假设有9个策略
