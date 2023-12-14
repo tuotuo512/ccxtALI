@@ -1,6 +1,10 @@
 import pandas as pd
 import os
 
+# 1. 数据处理模块
+# 数据获取：从数据源（如币安）获取数据。
+# 数据清洗：处理缺失值、异常值等。
+# 数据标准化：确保数据格式一致，方便后续处理。
 # 设置文件夹路径
 folder_path = r'C:\Users\Administrator\Desktop\量化学习backtrader\数据-bn'
 
