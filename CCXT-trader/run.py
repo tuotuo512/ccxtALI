@@ -38,7 +38,7 @@ def initialize_exchange():
 
 # 2. 重连交易所
 def reconnect_exchange(exchange):
-    max_retries = 3
+    max_retries = 5
     retry_count = 0
     while retry_count < max_retries:
         try:
@@ -48,7 +48,7 @@ def reconnect_exchange(exchange):
         except Exception as e:
             print("重新连接交易所失败:", str(e))
             retry_count += 1
-            time.sleep(60)
+            time.sleep(120)
     print("无法重新连接交易所，达到最大重试次数")
     return False
 
@@ -133,6 +133,8 @@ def calculate_and_execute_trades(positions_state, exchange, df_15m, df_30m, df_1
     positions_state[7] = 0  # 这里rsi15分进去，30分超买出来  2-4
     positions_state[8] = 0  # 这里30分超卖入场rsi ，30分超买出来     2-5
 
+    interval = 4.3 > df_15m['close'].iloc[-1] > 1.11
+
     #   把需要的东西组合起来====================================================================
 
     #   调用创建 MyStrategy 实例: 通过创建实例，才能实际使用这些类中定义的方法和属性。
@@ -153,7 +155,7 @@ def calculate_and_execute_trades(positions_state, exchange, df_15m, df_30m, df_1
     total_capital = exchange.fetch_balance()['total']['USDT']
     # print('===程序新开始===，可用总资金',total_capital)
     # 相当于杠杆
-    r_per = 0.1  # 设置为0.1，表示你愿意将总资金的10%用于单个交易
+    r_per = 1  # 设置为0.1，表示你愿意将总资金的10%用于单个交易
     #   币最新价
     close_price = df_15m['close'].iloc[-1]
     #    仓位大小
@@ -173,7 +175,7 @@ def calculate_and_execute_trades(positions_state, exchange, df_15m, df_30m, df_1
 
     #   策略循环部分==============================================================
 
-    if 4.3 > df_15m['close'].iloc[-1] > 0.1:
+    if interval:     # 价格在xx-xx的交易区间
 
         # 遍历所有策略
         for strategy_number in range(1, 10):  # 假设有9个策略

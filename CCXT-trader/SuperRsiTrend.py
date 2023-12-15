@@ -76,7 +76,7 @@ class MyStrategy:
         print('30分钟轨道值：', supertrend_30m.iloc[-2])  # 打印super上轨参照
         print('60分钟轨道值：', supertrend_1h.iloc[-2])  # 打印super上轨参照
 
-        #   第一套策略……
+        #   第一套.策略……
         #   1. 反转，买入逻辑 30分进，30分出
         if df_30m['close'].iloc[-3] < supertrend_30m.iloc[-3] < df_30m['close'].iloc[-2]:
             self.update_position('strategy1-1', 1)  # 买入
@@ -109,7 +109,7 @@ class MyStrategy:
         if df_15m['close'].iloc[-2] < supertrend_15m.iloc[-3] < df_15m['close'].iloc[-3]:
             self.update_position('strategy1-4', -1)
 
-    #   二.趋势共振单信号函数
+    #   第二套.趋势共振单信号函数
     def calculate_signals_2(self):
         # 在 calculate_signals_1 中使用数据和指标
         df_15m = self.dataframes['15m']
@@ -146,7 +146,7 @@ class MyStrategy:
             if df_1h['close'].iloc[-2] < supertrend_1h.iloc[-3] < df_1h['close'].iloc[-3]:
                 self.update_position('strategy2-3', -1)
 
-        # rsi
+        # 第三套策略. rsi  震荡
         #   8.  买入逻辑：15分 RSI 超卖 和大趋势向上
         if (rsi_15m.iloc[-3] < 30) and (df_1h['close'].iloc[-2] > df_1h['close'].iloc[-3] * 0.96):
             # 这里用的小时图的值往下2%
