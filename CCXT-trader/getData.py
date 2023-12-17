@@ -1,8 +1,8 @@
 import ccxt
 import pandas as pd
 import time
-import matplotlib.pyplot as plt
-import mplfinance as mpf
+# import matplotlib.pyplot as plt
+# import mplfinance as mpf
 
 # 引入币安API设置的变量
 import os
