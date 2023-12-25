@@ -31,7 +31,7 @@ def initialize_exchange():
 # 定义获取数据的函数
 def get_data(exchange):
     # 获取最新的1000根1分钟K线数据
-    data = exchange.fetch_ohlcv('ARB/USDT:USDT', '5m', limit=1000)
+    data = exchange.fetch_ohlcv('ARB/USDT:USDT', '1m', limit=1000)
 
     # 转换数据到pandas DataFrame
     df = pd.DataFrame(data, columns=['timestamp', 'open', 'high', 'low', 'close', 'volume'])
@@ -57,7 +57,7 @@ def get_data(exchange):
     time.sleep(10)
 
     # 生成5分钟数据
-    df_5m = df.resample('5Min').agg(
+    df_5m = df.resample('1Min').agg(
         {'open': 'first', 'high': 'max', 'low': 'min', 'close': 'last', 'volume': 'sum'})
 
     # 生成15分钟数据

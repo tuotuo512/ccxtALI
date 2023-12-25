@@ -45,7 +45,7 @@ class MyStrategy:
         # iloc[]用于基于整数位置的索引。它可以帮助你选择或操作数据。在iloc[]中，数字 -1代表最后一行(最新数据)
         #   打印当下需要看的数据
         print(datetime.datetime.now())
-        print('最新价：', df_30m['close'].iloc[-2])
+        print('最新价：', df_15m['close'].iloc[-1])
         print('15分钟轨道值：', supertrend_15m.iloc[-2])  # 打印super上轨参照
         print('30分钟轨道值：', supertrend_30m.iloc[-2])  # 打印super上轨参照
         print('60分钟轨道值：', supertrend_1h.iloc[-2])  # 打印super上轨参照
