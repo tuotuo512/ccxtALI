@@ -19,13 +19,13 @@ def manual_update_positions():
     global initialize_positions
     # 示例：手动设置策略 '1_1' 的仓位为某个值，信号保持不变
 
-    initialize_positions['1_1'] = (1, 60)  # 15m这里是手动填入 目前仓位持仓 1-1
-    initialize_positions['1_2'] = (1, 60)  # 30m                   1-2
-    initialize_positions['1_3'] = (1, 60)  # 15m进 30m出            1-3
-    initialize_positions['1_4'] = (1, 60)  # 1h进 1h出              1-4
+    initialize_positions['1_1'] = (0, 0)  # 15m这里是手动填入 目前仓位持仓 1-1
+    initialize_positions['1_2'] = (1, 100)  # 30m                   1-2
+    initialize_positions['1_3'] = (0, 0)  # 15m进 30m出            1-3
+    initialize_positions['1_4'] = (1, 100)  # 1h进 1h出              1-4
     #   2、顺势super
     initialize_positions['2_1'] = (0, 0)  # 这里15m图        2-1
-    initialize_positions['2_2'] = (0, 0)  # 这里30m图        2-2
+    initialize_positions['2_2'] = (1, 100)  # 这里30m图        2-2
     initialize_positions['2_3'] = (0, 0)  # 这里小时图       2-3
     #  3、RSI  震荡
     initialize_positions['3_1'] = (0, 0)  # 这里rsi15分进去，30分超买出来  2-4
@@ -63,7 +63,6 @@ def run():
         strategy = MyStrategy()
         strategy.set_data(df_15m, df_30m, df_1h)  # 设置策略数据
         strategy.set_indicators()  # 计算指标
-
         # 执行策略计算信号
         strategy.calculate_signals_1()
 
@@ -73,7 +72,7 @@ def run():
         total_capital = exchange.fetch_balance()['total']['USDT']
         # print('===程序新开始===，可用总资金',total_capital)
         # 相当于杠杆
-        r_per = 0.5  # 设置为0.1，表示你愿意将总资金的10%用于单个交易
+        r_per = 1.5  # 设置为0.1，表示你愿意将总资金的10%用于单个交易
         #   币最新价
         close_price = df_15m['close'].iloc[-1]
         #    仓位大小
@@ -100,7 +99,7 @@ def run():
         for strategy_name in strategy.signals:
             execute_trade(exchange, strategy, strategy_name, initialize_positions, position_size)
 
-        time.sleep(20)
+        time.sleep(5)
 
 
 # 6. 定义执行交易的函数

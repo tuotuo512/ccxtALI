@@ -57,25 +57,25 @@ def get_data(exchange):
     time.sleep(10)
 
     # 生成5分钟数据
-    df_5m = df.resample('1Min').agg(
+    df_5m = df.resample('3Min').agg(
         {'open': 'first', 'high': 'max', 'low': 'min', 'close': 'last', 'volume': 'sum'})
 
     # 生成15分钟数据
-    df_15m = df.resample('15Min').agg({'open': 'first',
+    df_15m = df.resample('5Min').agg({'open': 'first',
                                        'high': 'max',
                                        'low': 'min',
                                        'close': 'last',
                                        'volume': 'sum'})
 
     # 生成30分钟数据
-    df_30m = df.resample('30Min').agg({'open': 'first',
+    df_30m = df.resample('10Min').agg({'open': 'first',
                                        'high': 'max',
                                        'low': 'min',
                                        'close': 'last',
                                        'volume': 'sum'})
 
     # 生成60分钟数据
-    df_1h = df.resample('60Min').agg({'open': 'first',
+    df_1h = df.resample('30Min').agg({'open': 'first',
                                       'high': 'max',
                                       'low': 'min',
                                       'close': 'last',
