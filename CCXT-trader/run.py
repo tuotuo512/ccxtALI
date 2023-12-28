@@ -19,10 +19,10 @@ def manual_update_positions():
     global initialize_positions
     # 示例：手动设置策略 '1_1' 的仓位为某个值，信号保持不变
 
-    initialize_positions['1_1'] = (1, 60)  # 15m这里是手动填入 目前仓位持仓 1-1
-    initialize_positions['1_2'] = (1, 60)  # 30m                   1-2
-    initialize_positions['1_3'] = (1, 60)  # 15m进 30m出            1-3
-    initialize_positions['1_4'] = (1, 60)  # 1h进 1h出              1-4
+    initialize_positions['1_1'] = (0, 0)  # 15m这里是手动填入 目前仓位持仓 1-1
+    initialize_positions['1_2'] = (0, 0)  # 30m                   1-2
+    initialize_positions['1_3'] = (0, 0)  # 15m进 30m出            1-3
+    initialize_positions['1_4'] = (0, 0)  # 1h进 1h出              1-4
     #   2、顺势super
     initialize_positions['2_1'] = (0, 0)  # 这里15m图        2-1
     initialize_positions['2_2'] = (0, 0)  # 这里30m图        2-2
@@ -73,19 +73,19 @@ def run():
         total_capital = exchange.fetch_balance()['total']['USDT']
         # print('===程序新开始===，可用总资金',total_capital)
         # 相当于杠杆
-        r_per = 0.5  # 设置为0.1，表示你愿意将总资金的10%用于单个交易
+        r_per = 3  # 设置为0.1，表示你愿意将总资金的10%用于单个交易
         #   币最新价
         close_price = df_15m['close'].iloc[-1]
         #    仓位大小
         position_size = (total_capital * r_per) / close_price
-        min_position_size = 5  # arb最小下单量
+        min_position_size = 0.009  # ETH最小下单量
 
-        #   如果资金不够，只下单最小单，如果够了， 则（ ARB保留1个小数点）
+        #   如果资金不够，只下单最小单，如果够了， 则（ ETH保留3个小数点）
         if position_size < min_position_size:
             position_size = min_position_size
         else:
-            position_size = math.floor(position_size / 0.003) * 0.003
-            position_size = round(position_size, 1)  # 保留小数点后1位
+            position_size = math.floor(position_size / 0.009) * 0.009
+            position_size = round(position_size, 3)  # 保留小数点后3位
         print('-------多单准备开仓仓位：', position_size, '-------')
 
         # 更新仓位状态
@@ -112,14 +112,14 @@ def execute_trade(exchange, strategy, strategy_name, positions_state, position_s
     time.sleep(5)
     if signal == 1 and position == 0:
         # 买入逻辑
-        exchange.create_market_order(symbol='ARB/USDT:USDT', side='buy', amount=position_size)
+        exchange.create_market_order(symbol='ETH/USDT:USDT', side='buy', amount=position_size)
         positions_state[strategy_name] = (signal, position_size)  # 更新仓位状态
         print(f'----------------------------------------成功买入{strategy_name}:', position_size)
         print(f'{strategy_name}上的仓位：', positions_state[strategy_name])
 
     elif signal == -1 and position > 0:
         # 卖出逻辑
-        exchange.create_market_order(symbol='ARB/USDT:USDT', side='sell', amount=position)
+        exchange.create_market_order(symbol='ETH/USDT:USDT', side='sell', amount=position)
         print(f'---------------------------------------成功卖出{strategy_name}:', position)
         positions_state[strategy_name] = (signal, 0)  # 清空仓位
         print(f'{strategy_name}平仓后剩余:', positions_state[strategy_name])

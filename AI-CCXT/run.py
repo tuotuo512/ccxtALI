@@ -2,7 +2,7 @@
 import time
 import math
 from SuperRsiTrend import MyStrategy
-from exchange_utils import initialize_exchange, reconnect_exchange, fetch_and_process_market_data
+from exchange_settings import initialize_exchange, reconnect_exchange,get_data, aggregate_data
 
 # 引入交易所设置
 exchange = initialize_exchange()
@@ -19,10 +19,10 @@ def manual_update_positions():
     global initialize_positions
     # 示例：手动设置策略 '1_1' 的仓位为某个值，信号保持不变
 
-    initialize_positions['1_1'] = (1, 60)  # 15m这里是手动填入 目前仓位持仓 1-1
-    initialize_positions['1_2'] = (1, 60)  # 30m                   1-2
-    initialize_positions['1_3'] = (1, 60)  # 15m进 30m出            1-3
-    initialize_positions['1_4'] = (1, 60)  # 1h进 1h出              1-4
+    initialize_positions['1_1'] = (0, 0)  # 5m这里是手动填入 目前仓位持仓 1-1
+    initialize_positions['1_2'] = (0, 0)  # 30m                   1-2
+    initialize_positions['1_3'] = (0, 0)  # 15m进 30m出            1-3
+    initialize_positions['1_4'] = (0, 0)  # 1h进 1h出              1-4
     #   2、顺势super
     initialize_positions['2_1'] = (0, 0)  # 这里15m图        2-1
     initialize_positions['2_2'] = (0, 0)  # 这里30m图        2-2
@@ -55,13 +55,15 @@ def run():
         if not reconnect_exchange(exchange):
             break
 
+            # 获取历史数据
+        historical_df = get_data(exchange)
         # 每次循环时获取最新数据
-        df_15m, df_30m, df_1h, df_4h = fetch_and_process_market_data(exchange)
+        df_1m, df_3m, df_5, df_15m,df_30m = aggregate_data(historical_df)
 
         # print(df_15m.tail(5))
 
         strategy = MyStrategy()
-        strategy.set_data(df_15m, df_30m, df_1h)  # 设置策略数据
+        strategy.set_data(df_1m, df_3m, df_5, df_15m,df_30m)  # 设置策略数据
         strategy.set_indicators()  # 计算指标
 
         # 执行策略计算信号

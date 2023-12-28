@@ -13,15 +13,17 @@ class MyStrategy:
         self.positions = {}
         self.signals = {}  # 初始化为空字典
 
-    def set_data(self, df_15m, df_30m, df_1h):
+    def set_data(self, df_1m, df_3m, df_5m, df_15m, df_30m):
         self.dataframes = {
+            '1m': df_1m,
+            '3m': df_3m,
+            '5m': df_5m,
             '15m': df_15m,
-            '30m': df_30m,
-            '1h': df_1h
+            '30m': df_30m
         }
 
     def set_indicators(self):
-        for timeframe in ['15m', '30m', '1h']:
+        for timeframe in ['1m', '3m', '5m', '15m', '30m']:
             self.indicators[f"rsi_{timeframe}"] = rsi(self.dataframes[timeframe], period=14)
             self.indicators[f"supertrend_{timeframe}"] = supertrend(self.dataframes[timeframe], factor=3, period=10)
 
@@ -35,20 +37,26 @@ class MyStrategy:
     #   第一部分：反转抄底信号函数：  开仓部分，30分、60、4小时   spu突破就买
     def calculate_signals_1(self):
         # 在 calculate_signals_1 中调用数据和指标
+        df_1m = self.dataframes['1m']
+        df_3m = self.dataframes['3m']
+        df_5m = self.dataframes['5m']
         df_15m = self.dataframes['15m']
         df_30m = self.dataframes['30m']
-        df_1h = self.dataframes['1h']
+        supertrend_1m = self.indicators['supertrend_1m']
+        supertrend_3m = self.indicators['supertrend_3m']
+        supertrend_5m = self.indicators['supertrend_5m']
         supertrend_15m = self.indicators['supertrend_15m']
         supertrend_30m = self.indicators['supertrend_30m']
-        supertrend_1h = self.indicators['supertrend_1h']
 
         # iloc[]用于基于整数位置的索引。它可以帮助你选择或操作数据。在iloc[]中，数字 -1代表最后一行(最新数据)
         #   打印当下需要看的数据
         print(datetime.datetime.now())
         print('最新价：', df_15m['close'].iloc[-1])
+        print('1分钟轨道值：', supertrend_1m.iloc[-2])  # 打印super上轨参照
+        print('3分钟轨道值：', supertrend_3m.iloc[-2])  # 打印super上轨参照
+        print('5分钟轨道值：', supertrend_5m.iloc[-2])  # 打印super上轨参照
         print('15分钟轨道值：', supertrend_15m.iloc[-2])  # 打印super上轨参照
         print('30分钟轨道值：', supertrend_30m.iloc[-2])  # 打印super上轨参照
-        print('60分钟轨道值：', supertrend_1h.iloc[-2])  # 打印super上轨参照
 
         #   第一套.策略……
         #   1. 反转，买入逻辑 30分进，30分出
@@ -60,7 +68,7 @@ class MyStrategy:
         #     print(f"更新了信号 {strategy_name}: {self.signals[strategy_name]}")  # 打印以确认
 
         # 1_1开仓逻辑：15分图进 15分出
-        if df_15m['close'].iloc[-3] <= supertrend_15m.iloc[-3] < df_15m['close'].iloc[-2]:
+        if df_5m['close'].iloc[-3] <= supertrend_5m.iloc[-3] < df_5m['close'].iloc[-2]:
             strategy_name = "1_1"  # 根据update_position中的参数来构造策略名称
             self.update_position(strategy_name, 1)  # 买入信号
             print(f"更新了信号 {strategy_name}: {self.signals[strategy_name]}")  # 打印以确认
