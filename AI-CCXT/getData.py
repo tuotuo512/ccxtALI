@@ -1,95 +1,105 @@
-# 引入交易所设置
-from exchange_settings import initialize_exchange, reconnect_exchange
+# 交易所和K线数据
 
+import os
 import pandas as pd
-
-import websocket
-import json
-import threading
-import sys  # 导入 sys 模块
-
-# 确保 historical_df 是全局变量
-global historical_df
-
-# 步骤 1: 获取历史 K 线数据 (get_data)
-def get_data(exchange):
-    # 获取最新的1000根1分钟K线数据
-    data = exchange.fetch_ohlcv('ARB/USDT:USDT', '1m', limit=100)
-    # 转换数据到pandas DataFrame
-    df = pd.DataFrame(data, columns=['timestamp', 'open', 'high', 'low', 'close', 'volume'])
-    # 将timestamp列转换为日期时间格式
-    df['timestamp'] = pd.to_datetime(df['timestamp'], unit='ms')
-    # 设置timestamp列为索引
-    df.set_index('timestamp', inplace=True)
-    return df
+import time
+import ccxt
 
 
-# 步骤 2： WebSocket 实时数据获取函数；并将这些实时数据添加到 historical_df 中
-def websocket_kline(symbol, interval, df):
-    ws_url = f"wss://stream.binance.com:9443/ws/{symbol}@kline_{interval}"
-
-    def on_message(ws, message):
-        message_data = json.loads(message)
-        kline = message_data['k']
-        # 添加新的 K 线数据到 DataFrame
-        new_row = {
-            'timestamp': pd.to_datetime(kline['t'], unit='ms'),
-            'open': kline['o'],
-            'high': kline['h'],
-            'low': kline['l'],
-            'close': kline['c'],
-            'volume': kline['v']
+def initialize_exchange():
+    # 创建并配置交易所实例
+    api_key = os.environ.get('BINANCE_API_KEY')
+    api_secret = os.environ.get('BINANCE_API_SECRET')
+    exchange = ccxt.binance({
+        'apiKey': api_key,
+        'secret': api_secret,
+        'enableRateLimit': True,
+        'options': {'defaultType': 'swap'},
+        'proxies': {
+            'http': 'http://127.0.0.1:18081',
+            'https': 'http://127.0.0.1:18081',
         }
-        df.loc[new_row['timestamp']] = [new_row['open'], new_row['high'], new_row['low'], new_row['close'],
-                                        new_row['volume']]
-        print("New data received and added to DataFrame")
-
-    def on_open(ws):
-        print("Opened connection to WebSocket")
-
-    ws = websocket.WebSocketApp(ws_url, on_message=on_message, on_open=on_open)
-    ws.run_forever()
+    })
+    return exchange
 
 
-# 生成不同时间间隔的聚合数据
-def aggregate_data(df):
-    df_1m = df.resample('1Min').agg(
+def reconnect_exchange(exchange):
+    max_retries = 5
+    retry_count = 0
+    while retry_count < max_retries:
+        try:
+            exchange.load_markets()
+            print("连接交易所成功")
+            return True
+        except Exception as e:
+            print("重新连接交易所失败:", str(e))
+            retry_count += 1
+            time.sleep(120)
+    print("无法重新连接交易所，达到最大重试次数")
+    return False
+
+
+def fetch_and_process_market_data(exchange, historical_df=None):
+    if historical_df is None or historical_df.empty:
+        data = exchange.fetch_ohlcv('ETH/USDT:USDT', '1m', limit=1000)
+        historical_df = pd.DataFrame(data, columns=['timestamp', 'open', 'high', 'low', 'close', 'volume'])
+    else:
+        # 获取最新的一根K线
+        latest_data = exchange.fetch_ohlcv('ETH/USDT:USDT', '1m', limit=1)
+        latest_df = pd.DataFrame(latest_data, columns=['timestamp', 'open', 'high', 'low', 'close', 'volume'])
+
+        # 在添加之前移除任何重复的时间戳
+        historical_df = historical_df[historical_df['timestamp'] != latest_df['timestamp'].iloc[0]]
+        historical_df = pd.concat([historical_df, latest_df])
+
+        # 保持DataFrame的大小为1000
+        if len(historical_df) > 1000:
+            historical_df = historical_df.iloc[-1000:]
+
+    # 将timestamp列转换为日期时间格式 下一行是换成世界时间
+    # 转换timestamp列为日期时间格式
+    historical_df['timestamp'] = pd.to_datetime(historical_df['timestamp'], unit='ms')
+    historical_df.set_index('timestamp', inplace=True)
+    # print(historical_df)
+
+    historical_df.index = historical_df.index.floor('1Min')
+    # 数据重采样
+    df_1m = historical_df.resample('1Min').agg(
         {'open': 'first', 'high': 'max', 'low': 'min', 'close': 'last', 'volume': 'sum'})
 
-    df_3m = df.resample('3Min').agg(
+    df_3m = historical_df.resample('3Min').agg(
         {'open': 'first', 'high': 'max', 'low': 'min', 'close': 'last', 'volume': 'sum'})
 
-    df_5m = df.resample('5Min').agg(
+    df_5m = historical_df.resample('5Min').agg(
         {'open': 'first', 'high': 'max', 'low': 'min', 'close': 'last', 'volume': 'sum'})
 
-    df_15m = df.resample('15Min').agg(
+    df_15m = historical_df.resample('15Min').agg(
         {'open': 'first', 'high': 'max', 'low': 'min', 'close': 'last', 'volume': 'sum'})
 
-    df_30m = df.resample('30Min').agg(
+    df_30m = historical_df.resample('30Min').agg(
         {'open': 'first', 'high': 'max', 'low': 'min', 'close': 'last', 'volume': 'sum'})
 
     return df_1m, df_3m, df_5m, df_15m, df_30m
 
 
-# 主函数中的调用
-# import mplfinance as mpf
-
-# 主函数中的调用
-if __name__ == '__main__':
-    exchange = initialize_exchange()
-    if not reconnect_exchange(exchange):
-        print("无法连接到交易所")
-        sys.exit()  # 使用 sys.exit() 来退出程序
-
-    historical_df = get_data(exchange)
-    df_1m, df_3m, df_5m, df_15m, df_30m = aggregate_data(historical_df)
-
-    # 使用线程运行 WebSocket 客户端
-    threading.Thread(target=websocket_kline, args=("ARB/USDT:USDT", "1m", historical_df)).start()
-
-    # # 使用 mplfinance 绘制 K 线图
-    # mpf.plot(df_1m, type='candle', style='charles',
-    #          title='1 Minute OHLC Candlestick Chart',
-    #          ylabel='Price (USDT)')
-    #
-    # # 其他分析或可视化代码...
+# # 主函数
+# def main():
+#     exchange = initialize_exchange()
+#     if reconnect_exchange(exchange):
+#         df_1m, df_3m, df_5m, df_15m, df_30m = fetch_and_process_market_data(exchange)
+#
+#         # 打印1分钟K线的行数
+#         print(f"15分钟K线的行数: {len(df_15m)}")
+#         print(df_15m)
+#
+#         # 打印最新一分钟的收盘价
+#         if not df_15m.empty:
+#             latest_close_price = df_15m['close'].iloc[-1]
+#             print(f"最新一分钟的收盘价: {latest_close_price}")
+#         else:
+#             print("没有获取到最新的1分钟K线数据")
+#
+#
+# # 运行主函数
+# if __name__ == '__main__':
+#     main()

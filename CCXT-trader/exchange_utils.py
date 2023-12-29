@@ -38,7 +38,8 @@ def reconnect_exchange(exchange):
 
 
 def fetch_and_process_market_data(exchange):
-    data = exchange.fetch_ohlcv('ARB/USDT:USDT', '1m', limit=1000)
+    data = exchange.fetch_ohlcv('ETH/USDT:USDT', '1m', limit=500)
+
 
     # 暂停一段时间，比如1分钟
     time.sleep(10)
@@ -77,3 +78,25 @@ def fetch_and_process_market_data(exchange):
         {'open': 'first', 'high': 'max', 'low': 'min', 'close': 'last', 'volume': 'sum'})
 
     return df_15m, df_30m, df_1h, df_4h
+
+# # 主函数  （测试）
+# def main():
+#     exchange = initialize_exchange()
+#     if reconnect_exchange(exchange):
+#         df_15m, df_30m, df_1h, df_4h = fetch_and_process_market_data(exchange)
+#
+#         # 打印1分钟K线的行数
+#         print(f"15分钟K线的行数: {len(df_15m)}")
+#         print(df_15m)
+#
+#         # 打印最新一分钟的收盘价
+#         if not df_15m.empty:
+#             latest_close_price = df_15m['close'].iloc[-1]
+#             print(f"最新一分钟的收盘价: {latest_close_price}")
+#         else:
+#             print("没有获取到最新的1分钟K线数据")
+#
+#
+# # 运行主函数
+# if __name__ == '__main__':
+#     main()

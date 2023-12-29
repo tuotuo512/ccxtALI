@@ -71,7 +71,7 @@ def run():
         #    仓位必须是0.001的整数倍，总资金/df_15m收盘价 =可下仓位。还需要添加逻辑以处理极端的市场情况
         #    获取账户的总资金  #加入错误处理机制
         total_capital = exchange.fetch_balance()['total']['USDT']
-        # print('===程序新开始===，可用总资金',total_capital)
+        print('===程序新开始===，永续总资金', total_capital)
         # 相当于杠杆
         r_per = 3  # 设置为0.1，表示你愿意将总资金的10%用于单个交易
         #   币最新价

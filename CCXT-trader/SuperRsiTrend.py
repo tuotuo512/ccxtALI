@@ -82,12 +82,12 @@ class MyStrategy:
             print(f"更新了信号 {strategy_name}: {self.signals[strategy_name]}")  # 打印以确认
 
         #   1_3. 买入逻辑：15分进，30分出，小时图收盘价大于sup，小时图收盘价还小于4小时
-        if (df_15m['close'].iloc[-3] <= supertrend_15m.iloc[-3] < df_15m['close'].iloc[-2]) \
-                and (df_1h['close'].iloc[-2] > supertrend_1h.iloc[-2]):
+        if (df_15m['close'].iloc[-3] < supertrend_15m.iloc[-3] < df_15m['close'].iloc[-2]) \
+                and (df_1h['close'].iloc[-2] < supertrend_1h.iloc[-2]):
             strategy_name = "1_3"  # 根据update_position中的参数来构造策略名称
             self.update_position(strategy_name, 1)  # 买入信号
             print(f"更新了信号 {strategy_name}: {self.signals[strategy_name]}")  # 打印以确认
-        #   卖出逻辑：按照半小时图
+        #   卖出逻辑：按照半小时图 或者大幅波动2%止损
         if df_30m['close'].iloc[-2] < supertrend_30m.iloc[-3] < df_30m['close'].iloc[-3] \
                 or (df_15m['close'].iloc[-2] < (0.98 * supertrend_15m.iloc[-3])):  # 小于suer止损
             strategy_name = "1_3"  # 根据update_position中的参数来构造策略名称
