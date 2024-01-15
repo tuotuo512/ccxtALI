@@ -141,8 +141,6 @@ def calculate_and_execute_trades(positions_state, exchange, df_15m, df_30m, df_1
     #   给这个实例加入K线数据
     strategy.set_data(df_15m, df_30m, df_1h)
 
-    strategy.set_indicators()  # 确保这一步被执行
-
     #  调用MyStrategy里的calculate_signals
     strategy.calculate_signals_1()
     strategy.calculate_signals_2()

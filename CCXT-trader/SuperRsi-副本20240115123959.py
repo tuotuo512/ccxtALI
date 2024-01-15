@@ -44,6 +44,9 @@ def supertrend(data, period=10, factor=3):
     return data['supertrend']
 
 
+    # return data #画图测试时候返回data
+
+
 def rsi(data: pd.DataFrame, period=14):
     rsi_indicator = RSIIndicator(data["close"], period)
     rsi = rsi_indicator.rsi()

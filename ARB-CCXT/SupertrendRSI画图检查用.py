@@ -1,3 +1,4 @@
+
 import pandas as pd
 import numpy as np
 from ta.momentum import RSIIndicator
@@ -41,7 +42,7 @@ def supertrend(data, period=10, factor=3):
                 data.at[data.index[current], 'Upper_Band'] = data['Upper_Band'].iloc[previous]
 
     data['supertrend'] = np.where(data['In_Uptrend'], data['Lower_Band'], data['Upper_Band'])
-    return data['supertrend']
+    return data
 
 
 def rsi(data: pd.DataFrame, period=14):
@@ -49,33 +50,33 @@ def rsi(data: pd.DataFrame, period=14):
     rsi = rsi_indicator.rsi()
     return rsi
 
-#
-# pd.options.mode.chained_assignment = None  # default='warn'
-#
-# from getData import get_data, initialize_exchange
-#
-# # 初始化交易所
-# exchange = initialize_exchange()
-#
-# # 引用数据
-# df, df_15m, df_30m, df_1h, df_4h = get_data(exchange)
-#
-#
-# # 计算 Supertrend
-# supertrend_data = supertrend(df_15m)
-#
-# # 计算 RSI
-# rsi_data = rsi(df_15m)
-#
-#
-# import mplfinance as mpf
-#
-# # 添加 Supertrend 到 DataFrame 用于绘图
-# df_15m['Supertrend'] = supertrend_data['supertrend']
-#
-# # 创建一个额外的图层用于 RSI
-# apds = [mpf.make_addplot(df_15m['Supertrend'], panel=0, color='g', secondary_y=False),
-#         mpf.make_addplot(rsi_data, panel=1, color='r', secondary_y=True)]
-#
-# # 绘制K线图和RSI指标
-# mpf.plot(df_15m, type='candle', style='binance', addplot=apds, volume=True, figratio=(12, 8), figscale=1.2)
+
+pd.options.mode.chained_assignment = None  # default='warn'
+
+from getData import get_data, initialize_exchange
+
+# 初始化交易所
+exchange = initialize_exchange()
+
+# 引用数据
+df, df_15m, df_30m, df_1h, df_4h = get_data(exchange)
+
+
+# 计算 Supertrend
+supertrend_data = supertrend(df)
+
+# 计算 RSI
+rsi_data = rsi(df)
+
+
+import mplfinance as mpf
+
+# 添加 Supertrend 到 DataFrame 用于绘图
+df['Supertrend'] = supertrend_data['supertrend']
+
+# 创建一个额外的图层用于 RSI
+apds = [mpf.make_addplot(df['Supertrend'], panel=0, color='g', secondary_y=False),
+        mpf.make_addplot(rsi_data, panel=1, color='r', secondary_y=True)]
+
+# 绘制K线图和RSI指标
+mpf.plot(df, type='candle', style='binance', addplot=apds, volume=True, figratio=(12, 8), figscale=1.2)

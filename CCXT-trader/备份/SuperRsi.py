@@ -6,7 +6,7 @@ import mplfinance as mpf
 
 import matplotlib.pyplot as plt
 import matplotlib.dates as mdates
-from getData import  get_data
+
 
 
 def tr(data):
@@ -27,7 +27,7 @@ def atr(data, period):
     return atr
 
 
-def supertrend(data, period=10, factor=3):
+def supertrend(data, period=14, factor=3):
     """Calculate supertrend given a DataFrame, period and factor"""
     hl2 = (data['high'] + data['low']) / 2
     data['atr'] = atr(data, period)
@@ -68,49 +68,35 @@ def rsi(data: pd.DataFrame, period=14):
     return rsi
 
 pd.options.mode.chained_assignment = None  # default='warn'
-
-
-# 引用-------------------------------------------------------
-df_1m, df_15m, df_30m, df_1h, df_4h = get_data()
-
-
-
-##防止修改原始文件
-df_15m = df_15m.copy()
-
-# 生成15分钟数据
-data = df_15m.resample('15Min').agg({'open': 'first',
-                                     'high': 'max',
-                                     'low': 'min',
-                                     'close': 'last',
-                                     'volume': 'sum'})
-
-# supertrend(data) 是调用一个函数来计算超趋势指标，并返回一个结果
-supertrend(data)
-
-
-# 创建一个新的图表----------------------------------------------------
-fig, ax = plt.subplots()
-
-# 绘制K线图
-mpf.plot(data, type='candle', ax=ax,volume=False, show_nontrading=True)
-
-# 绘制supertrend
-ax.plot(data.index, data['supertrend'], color='purple', linewidth=2, label='Supertrend')
-
-
-# 设置图例
-ax.legend()
-# 显示图表
-plt.show()
-
-
-# Calculate supertrend
-supertrend_values = data['supertrend']
-
-# Save as a pandas Series
-supertrend_series = pd.Series(supertrend_values  , name="supertrend")
-
-
-# Print the last 100 values
-print(supertrend_series.tail(100))
+#
+# # 引用
+# df, df_15m, df_30m, df_1h, df_4h = get_data()
+#
+# ##防止修改原始文件
+# data = df.copy()
+#
+# # 计算 supertrend
+# supertrend(data)
+#
+# #这将会删除所有'supertrend'列的值为NaN的行
+# data['supertrend'].replace(0, np.nan, inplace=True)
+# data.dropna(subset=['supertrend'], inplace=True)
+#
+# plt.figure(figsize=(12,6))
+# plt.plot(data['close'], label='close')
+# plt.plot(data['supertrend'], label='supertrend', linestyle='--')
+# plt.title('close Price / supertrend')
+# plt.legend(loc='upper left')
+# plt.grid(True)
+# plt.show()
+#
+# # Calculate supertrend
+# supertrend_values = supertrend(data)
+#
+# # Save as a pandas Series
+# supertrend_series = pd.Series(supertrend_values  , name="supertrend")
+#
+# # Print the last 100 values
+# print(supertrend_series.tail(100))
+#
+# data.to_csv('df_1m.csv')
