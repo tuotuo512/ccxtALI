@@ -1,4 +1,9 @@
 
+#    cd /usr/local/python3/CCXTyan/AI-CCXT
+
+#    wget https://github.com/tuotuo512/CCXTyan/blob/master/AI-CCXT/getData.py
+#    python3 run.py
+
 
 # 策略组合：=================
 # X*震荡  + Y*趋势

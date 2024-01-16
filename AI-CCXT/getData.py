@@ -6,11 +6,9 @@ import ccxt
 
 def initialize_exchange():
     # 创建并配置交易所实例
-    api_key = 'TwbrGtP4y4epwunioTQwVJu1MucF3lE8cTVIKswQ1PS6FNRPwRRnJIdmVPcJHBpd'
-    api_secret = 'IbR2CmrZy7aisjKE9kpdFNgqTICyPi1fRyYqc14xv4XFStAeFeEpCS2nU9nRUTC7'
     exchange = ccxt.binance({
-        'apiKey': api_key,
-        'secret': api_secret,
+        'apiKey': 'TwbrGtP4y4epwunioTQwVJu1MucF3lE8cTVIKswQ1PS6FNRPwRRnJIdmVPcJHBpd',
+        'secret': 'IbR2CmrZy7aisjKE9kpdFNgqTICyPi1fRyYqc14xv4XFStAeFeEpCS2nU9nRUTC7',
         'enableRateLimit': True,
         'options': {'defaultType': 'swap'},
         'proxies': {
