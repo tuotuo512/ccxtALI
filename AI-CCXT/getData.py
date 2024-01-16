@@ -1,5 +1,3 @@
-# 交易所和K线数据
-
 import pandas as pd
 import time
 import ccxt
