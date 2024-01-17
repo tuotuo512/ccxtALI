@@ -8,11 +8,7 @@ def initialize_exchange():
         'apiKey': 'TwbrGtP4y4epwunioTQwVJu1MucF3lE8cTVIKswQ1PS6FNRPwRRnJIdmVPcJHBpd',
         'secret': 'IbR2CmrZy7aisjKE9kpdFNgqTICyPi1fRyYqc14xv4XFStAeFeEpCS2nU9nRUTC7',
         'enableRateLimit': True,
-        'options': {'defaultType': 'swap'},
-        'proxies': {
-            'http': 'http://127.0.0.1:18081',
-            'https': 'http://127.0.0.1:18081',
-        }
+        'options': {'defaultType': 'swap'}
     })
     return exchange
 
