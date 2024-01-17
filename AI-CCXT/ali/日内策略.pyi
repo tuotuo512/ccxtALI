@@ -9,7 +9,7 @@
 
 #   查看IP  curl ifconfig.me
 
-
+#  更新服务器仓库  git pull origin master
 
 
 
