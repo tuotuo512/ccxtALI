@@ -32,4 +32,4 @@ vol_ratio_5m = vol_5m / (vol_24h * 1440 / 5)
 vol_ratio_15m = vol_15m / (vol_24h * 1440 / 15)
 
 print("最新5分钟成交量与24小时平均的比值:", vol_ratio_5m)
-print("最新15分钟成交量
+
