@@ -2,6 +2,7 @@
 #    cd /usr/local/python3/CCXTyan/AI-CCXT
 #    rm getData.py
 
+
 #    wget https://github.com/tuotuo512/CCXTyan/blob/master/AI-CCXT/getData.py
 #    python3 run.py
 
