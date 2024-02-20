@@ -1,7 +1,7 @@
 # 主程序运行
 import time
 import math
-from SuperRsiTrend import MyStrategy
+from SuperRsiTrend_sell import MyStrategy
 from getData import initialize_exchange, reconnect_exchange,fetch_and_process_market_data
 
 # 引入交易所设置
@@ -76,7 +76,7 @@ def run():
         total_capital = exchange.fetch_balance()['total']['USDT']
         # print('===程序新开始===，可用总资金',total_capital)
         # 相当于杠杆
-        r_per = 3  # 设置为0.1，表示你愿意将总资金的10%用于单个交易
+        r_per = 1  # 设置为0.1，表示你愿意将总资金的10%用于单个交易
         #   币最新价
         close_price = df_1m['close'].iloc[-1]
         #    仓位大小
@@ -89,7 +89,7 @@ def run():
         else:
             position_size = math.floor(position_size / 0.009) * 0.009
             position_size = round(position_size, 1)  # 保留小数点后1位
-        print('-------多单准备开仓仓位：', position_size, '-------')
+        print('-------空单准备开仓仓位：', position_size, '-------')
 
         # 更新仓位状态
         update_positions(strategy.signals)
@@ -113,17 +113,17 @@ def execute_trade(exchange, strategy, strategy_name, positions_state, position_s
 
     print(f"准备执行交易 - 策略名称: {strategy_name}, 信号: {signal}, 仓位: {position}")
     time.sleep(5)
-    if signal == 1 and position == 0:
+    if signal == -1 and position == 0:
         # 买入逻辑
-        exchange.create_market_order(symbol='ETH/USDT:USDT', side='buy', amount=position_size)
+        exchange.create_market_order(symbol='ETH/USDT:USDT', side='sell', amount=position_size)
         positions_state[strategy_name] = (signal, position_size)  # 更新仓位状态
-        print(f'----------------------------------------成功买入{strategy_name}:', position_size)
+        print(f'----------------------------------------成功卖入{strategy_name}:', position_size)
         print(f'{strategy_name}上的仓位：', positions_state[strategy_name])
 
-    elif signal == -1 and position > 0:
+    elif signal == 1 and position > 0:
         # 卖出逻辑
-        exchange.create_market_order(symbol='ETH/USDT:USDT', side='sell', amount=position)
-        print(f'---------------------------------------成功卖出{strategy_name}:', position)
+        exchange.create_market_order(symbol='ETH/USDT:USDT', side='buy', amount=position)
+        print(f'---------------------------------------成功买出{strategy_name}:', position)
         positions_state[strategy_name] = (signal, 0)  # 清空仓位
         print(f'{strategy_name}平仓后剩余:', positions_state[strategy_name])
 

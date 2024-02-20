@@ -1,3 +1,8 @@
+
+#  okx
+#  API d4f72342-a1e3-4b4d-bb6d-a0f764eaac4e
+#  密钥 43914C14D233A853A098762FC945F71E
+
 #下载 git
 #sudo apt-get update
 #sudo apt-get install git

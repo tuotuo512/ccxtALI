@@ -82,24 +82,24 @@ def fetch_and_process_market_data(exchange, historical_df=None):
     return df_1m, df_3m, df_5m, df_15m, df_30m
 
 
-# # 主函数
-# def main():
-#     exchange = initialize_exchange()
-#     if reconnect_exchange(exchange):
-#         df_1m, df_3m, df_5m, df_15m, df_30m = fetch_and_process_market_data(exchange)
-#
-#         # 打印1分钟K线的行数
-#         print(f"15分钟K线的行数: {len(df_15m)}")
-#         print(df_15m)
-#
-#         # 打印最新一分钟的收盘价
-#         if not df_15m.empty:
-#             latest_close_price = df_15m['close'].iloc[-1]
-#             print(f"最新一分钟的收盘价: {latest_close_price}")
-#         else:
-#             print("没有获取到最新的1分钟K线数据")
-#
-#
-# # 运行主函数
-# if __name__ == '__main__':
-#     main()
+# 主函数
+def main():
+    exchange = initialize_exchange()
+    if reconnect_exchange(exchange):
+        df_1m, df_3m, df_5m, df_15m, df_30m = fetch_and_process_market_data(exchange)
+
+        # 打印1分钟K线的行数
+        print(f"15分钟K线的行数: {len(df_15m)}")
+        print(df_15m)
+
+        # 打印最新一分钟的收盘价
+        if not df_15m.empty:
+            latest_close_price = df_15m['close'].iloc[-1]
+            print(f"最新一分钟的收盘价: {latest_close_price}")
+        else:
+            print("没有获取到最新的1分钟K线数据")
+
+
+# 运行主函数
+if __name__ == '__main__':
+    main()

@@ -124,52 +124,56 @@ class MyStrategy:
             self.update_position(strategy_name, -1)  # 买入信号
             print(f"更新了信号 {strategy_name}: {self.signals[strategy_name]}")  # 打印以确认
 
-    #   第二套.震荡短线单信号函数
-    def calculate_signals_2(self):
-        # 在 calculate_signals_2 中使用数据和指标
-        df_1m = self.dataframes['1m']
-        df_3m = self.dataframes['3m']
-        df_5m = self.dataframes['5m']
-        df_15m = self.dataframes['15m']
-        df_30m = self.dataframes['30m']
-
-
-        supertrend_1m = self.indicators['supertrend_1m']
-        supertrend_3m = self.indicators['supertrend_3m']
-        supertrend_5m = self.indicators['supertrend_5m']
-        supertrend_15m = self.indicators['supertrend_15m']
-        supertrend_30m = self.indicators['supertrend_30m']
-
-        rsi_1m = self.indicators['rsi_1m']
-        rsi_3m = self.indicators['rsi_3m']
-        rsi_5m = self.indicators['rsi_5m']
-        rsi_15m = self.indicators['rsi_15m']
-
-
-        # # 2_1开仓逻辑：3分图进 3分出
-        # if df_3m['close'].iloc[-3] <= supertrend_3m.iloc[-3] < df_3m['close'].iloc[-2]:
-        #     strategy_name = "1_1"  # 根据update_position中的参数来构造策略名称
-        #     self.update_position(strategy_name, 1)  # 买入信号
-        #     print(f"更新了信号 {strategy_name}: {self.signals[strategy_name]}")  # 打印以确认
-        # #   卖出逻辑： 5m跌破
-        # if df_3m['close'].iloc[-2] < supertrend_3m.iloc[-3] < df_3m['close'].iloc[-3]:
-        #     strategy_name = "1_1"  # 根据update_position中的参数来构造策略名称
-        #     self.update_position(strategy_name, -1)  # 买入信号
-        #     print(f"更新了信号 {strategy_name}: {self.signals[strategy_name]}")  # 打印以确认
-        #
-        #
-
-
-        # 第三套策略. rsi  震荡m
-        #   1. 2_1开仓逻辑：5分 RSI 超卖 和大趋势向上
-        if (rsi_5m.iloc[-3] < 30) and (df_5m['close'].iloc[-2] > df_5m['close'].iloc[-3] * 0.96):
-            strategy_name = "2_1"
-            # 这里用的小时图的值往下2%
-            self.update_position(strategy_name, 1)
-            print(f"更新了信号 {strategy_name}: {self.signals[strategy_name]}")  # 打印以确认
-        #   卖出逻辑： 30分super跌破
-        if rsi_3m.iloc[-3] > 80:
-            strategy_name = "2_2"
-            self.update_position(strategy_name, 1)
-
-        # 9.   买入逻辑：4小时以上，30分rsi超卖 和大趋势向上
+    # #   第二套.趋势共振单信号函数
+    # def calculate_signals_2(self):
+    #     # 在 calculate_signals_1 中使用数据和指标
+    #     df_15m = self.dataframes['15m']
+    #     df_30m = self.dataframes['30m']
+    #     df_1h = self.dataframes['1h']
+    #     supertrend_15m = self.indicators['supertrend_15m']
+    #     supertrend_30m = self.indicators['supertrend_30m']
+    #     supertrend_1h = self.indicators['supertrend_1h']
+    #     rsi_15m = self.indicators['rsi_15m']
+    #     rsi_30m = self.indicators['rsi_30m']
+    #     # rsi_1h = self.indicators['rsi_1h']
+    #
+    #     #   5.  买入逻辑：顺势， 15分级别进出
+    #     if (df_15m['close'].iloc[-3] <= supertrend_15m.iloc[-3] < df_15m['close'].iloc[-2]) and \
+    #             (df_1h['close'].iloc[-2] > df_1h['close'].iloc[-3] * 0.98):  # 这里用的小时图的值往下2%
+    #         self.update_position('strategy2-1', 1)
+    #     #   卖出逻辑：15分跌破
+    #     if df_15m['close'].iloc[-2] < supertrend_15m.iloc[-3] < df_15m['close'].iloc[-3]:
+    #         self.update_position('strategy2-1', -1)
+    #
+    #     #   6.  买入逻辑：30分级别顺势
+    #     if (df_30m['close'].iloc[-3] <= supertrend_30m.iloc[-3] < df_30m['close'].iloc[-2]) and \
+    #             (df_1h['close'].iloc[-2] > df_1h['close'].iloc[-3] * 0.98):  # 这里用的小时图的值往下2%
+    #         self.update_position('strategy2-2', 1)
+    #     #   卖出逻辑：30分跌破
+    #     if df_30m['close'].iloc[-2] < supertrend_30m.iloc[-3] < df_30m['close'].iloc[-3]:
+    #         self.update_position('strategy2-2', -1)
+    #
+    #     #   7.  买入逻辑：小时级别  顺势
+    #     if (df_1h['close'].iloc[-3] < supertrend_1h.iloc[-3] < df_1h['close'].iloc[-2]) and \
+    #             (df_1h['close'].iloc[-2] > df_1h['close'].iloc[-3] * 0.98):  # 这里用的小时图的值往下2%
+    #         self.update_position('strategy2-3', 1)
+    #         #   卖出逻辑: SUPER跌破
+    #         if df_1h['close'].iloc[-2] < supertrend_1h.iloc[-3] < df_1h['close'].iloc[-3]:
+    #             self.update_position('strategy2-3', -1)
+    #
+    #     # 第三套策略. rsi  震荡
+    #     #   8.  买入逻辑：15分 RSI 超卖 和大趋势向上
+    #     if (rsi_15m.iloc[-3] < 30) and (df_1h['close'].iloc[-2] > df_1h['close'].iloc[-3] * 0.96):
+    #         # 这里用的小时图的值往下2%
+    #         self.update_position('strategy3-1', 1)
+    #     #   卖出逻辑： 30分super跌破
+    #     if rsi_30m.iloc[-3] > 80:
+    #         self.update_position('strategy3-1', -1)
+    #
+    #     # 9.   买入逻辑：4小时以上，30分rsi超卖 和大趋势向上
+    #     if (30 > rsi_30m.iloc[-3]) and (
+    #             df_1h['close'].iloc[-2] > df_1h['close'].iloc[-3] * 0.96):  # 这里用的小时图的值往下2%
+    #         self.update_position('strategy3-2', 1)
+    #     #   卖出逻辑 30分rsi超买
+    #     if rsi_30m.iloc[-3] > 80:
+    #         self.update_position('strategy3-2', -1)
