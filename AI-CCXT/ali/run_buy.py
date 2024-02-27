@@ -2,7 +2,7 @@
 import time
 import math
 from SuperRsiTrend_buy import MyStrategy
-from getData_okx import initialize_exchange, reconnect_exchange, fetch_and_process_market_data
+from getData import initialize_exchange, reconnect_exchange, fetch_and_process_market_data
 
 # 引入交易所设置
 exchange = initialize_exchange()

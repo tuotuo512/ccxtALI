@@ -4,6 +4,8 @@ import math
 from SuperRsiTrend import MyStrategy
 from getData import initialize_exchange, reconnect_exchange,fetch_and_process_market_data
 
+
+
 # 引入交易所设置
 exchange = initialize_exchange()
 
@@ -61,6 +63,9 @@ def run():
         # 每次循环时获取最新数据
         df_1m, df_3m, df_5m, df_15m, df_30m = fetch_and_process_market_data(exchange, historical_df)
 
+        # 现在计算最新的收盘价
+        close_price = df_1m['close'].iloc[-1]
+
         # print(df_15m.tail(5))
 
         strategy = MyStrategy()
@@ -75,8 +80,9 @@ def run():
         #    获取账户的总资金  #加入错误处理机制
         total_capital = exchange.fetch_balance()['total']['USDT']
         # print('===程序新开始===，可用总资金',total_capital)
-        # 相当于杠杆
-        r_per = 3  # 设置为0.1，表示你愿意将总资金的10%用于单个交易
+
+        # 相当于杠杆  倍数
+        r_per = 0.1  # 设置为0.1，表示你愿意将总资金的10%用于单个交易
         #   币最新价
         close_price = df_1m['close'].iloc[-1]
         #    仓位大小
@@ -90,6 +96,10 @@ def run():
             position_size = math.floor(position_size / 0.009) * 0.009
             position_size = round(position_size, 1)  # 保留小数点后1位
         print('-------多单准备开仓仓位：', position_size, '-------')
+        balance = exchange.fetch_balance()['free']['USDT']  # 获取可用USDT资金
+        cost = position_size * close_price * r_per /10  # 使用传入的close_price计算这次交易的成本
+        print('可用资金：', balance)
+        print('需要资金：', cost)
 
         # 更新仓位状态
         update_positions(strategy.signals)
@@ -101,31 +111,39 @@ def run():
         # print("当前信号状态：")
         # 执行交易
         for strategy_name in strategy.signals:
-            execute_trade(exchange, strategy, strategy_name, initialize_positions, position_size)
+            execute_trade(exchange, strategy, strategy_name, initialize_positions, position_size, balance, cost)
 
-        time.sleep(10)
+        time.sleep(20)
 
 
 # 6. 定义执行交易的函数
 
-def execute_trade(exchange, strategy, strategy_name, positions_state, position_size):
+
+def execute_trade(exchange, strategy, strategy_name, positions_state, position_size, balance, cost):
     signal, position = positions_state.get(strategy_name, (0, 0))  # 获取信号和仓位
 
     print(f"准备执行交易 - 策略名称: {strategy_name}, 信号: {signal}, 仓位: {position}")
-    time.sleep(5)
-    if signal == 1 and position == 0:
-        # 买入逻辑
-        exchange.create_market_order(symbol='ARB/USDT:USDT', side='buy', amount=position_size)
-        positions_state[strategy_name] = (signal, position_size)  # 更新仓位状态
-        print(f'----------------------------------------成功买入{strategy_name}:', position_size)
-        print(f'{strategy_name}上的仓位：', positions_state[strategy_name])
 
-    elif signal == -1 and position > 0:
-        # 卖出逻辑
-        exchange.create_market_order(symbol='ARB/USDT:USDT', side='sell', amount=position)
-        print(f'---------------------------------------成功卖出{strategy_name}:', position)
-        positions_state[strategy_name] = (signal, 0)  # 清空仓位
-        print(f'{strategy_name}平仓后剩余:', positions_state[strategy_name])
+    try:
+        if signal == 1 and position == 0:
+            # 买入逻辑，先检查资金是否足够
+            if balance < cost:
+                print(f"资金不足，无法执行买入操作：{strategy_name}")
+                return  # 资金不足，直接返回，不执行交易
+
+            exchange.create_market_order(symbol='ARB/USDT:USDT', side='buy', amount=position_size)
+            positions_state[strategy_name] = (signal, position_size)  # 更新仓位状态
+            print(f'----------------------------------------成功买入{strategy_name}:', position_size)
+            print(f'{strategy_name}上的仓位：', positions_state[strategy_name])
+
+        elif signal == -1 and position > 0:
+            # 卖出逻辑
+            exchange.create_market_order(symbol='ARB/USDT:USDT', side='sell', amount=position)
+            positions_state[strategy_name] = (signal, 0)  # 清空仓位
+            print(f'---------------------------------------成功卖出{strategy_name}:', position)
+
+    except Exception as e:
+        print(f"执行交易时发生错误：{e}")
 
 
 # 运行程序
