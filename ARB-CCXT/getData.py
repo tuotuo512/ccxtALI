@@ -13,6 +13,7 @@ def initialize_exchange():
     exchange = ccxt.binance({
         'apiKey': api_key,
         'secret': api_secret,
+        'timeout': 20000,  # 设置超时时间为60秒
         'enableRateLimit': True,
         'options': {'defaultType': 'swap'},
         'proxies': {
@@ -31,10 +32,14 @@ def reconnect_exchange(exchange):
             exchange.load_markets()
             print("连接交易所成功")
             return True
+        except ccxt.RequestTimeout as e:
+            print("请求超时，正在重试...")
+            retry_count += 1
+            time.sleep(10)  # 等待一段时间后重试，这里设置为10秒
         except Exception as e:
             print("重新连接交易所失败:", str(e))
             retry_count += 1
-            time.sleep(120)
+            time.sleep(120)  # 对于非超时错误，等待时间设置得更长一些
     print("无法重新连接交易所，达到最大重试次数")
     return False
 

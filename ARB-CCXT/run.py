@@ -2,9 +2,7 @@
 import time
 import math
 from SuperRsiTrend import MyStrategy
-from getData import initialize_exchange, reconnect_exchange,fetch_and_process_market_data
-
-
+from getData import initialize_exchange, reconnect_exchange, fetch_and_process_market_data
 
 # 引入交易所设置
 exchange = initialize_exchange()
@@ -63,9 +61,6 @@ def run():
         # 每次循环时获取最新数据
         df_1m, df_3m, df_5m, df_15m, df_30m = fetch_and_process_market_data(exchange, historical_df)
 
-        # 现在计算最新的收盘价
-        close_price = df_1m['close'].iloc[-1]
-
         # print(df_15m.tail(5))
 
         strategy = MyStrategy()
@@ -83,6 +78,7 @@ def run():
 
         # 相当于杠杆  倍数
         r_per = 0.1  # 设置为0.1，表示你愿意将总资金的10%用于单个交易
+
         #   币最新价
         close_price = df_1m['close'].iloc[-1]
         #    仓位大小
@@ -97,7 +93,7 @@ def run():
             position_size = round(position_size, 1)  # 保留小数点后1位
         print('-------多单准备开仓仓位：', position_size, '-------')
         balance = exchange.fetch_balance()['free']['USDT']  # 获取可用USDT资金
-        cost = position_size * close_price * r_per /10  # 使用传入的close_price计算这次交易的成本
+        cost = position_size * close_price / (10 * r_per) # 使用传入的close_price计算这次交易的成本
         print('可用资金：', balance)
         print('需要资金：', cost)
 
