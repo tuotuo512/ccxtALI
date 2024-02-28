@@ -19,18 +19,18 @@ def manual_update_positions():
     global initialize_positions
     # 示例：手动设置策略 '1_1' 的仓位为某个值，信号保持不变
 
-    initialize_positions['1_1'] = (0, 0)  # 3m这里是手动填入 目前仓位持仓 1-1
-    initialize_positions['1_2'] = (0, 0)  # 50m                   1-2
-    initialize_positions['1_3'] = (0, 0)  # 15m进 15m出            1-3
-    initialize_positions['1_4'] = (0, 0)  # 5进 30m出              1-4
+    initialize_positions['1_1'] = (1, 15)  # 3m这里是手动填入 目前仓位持仓 1-1
+    initialize_positions['1_2'] = (1, 15)  # 5m                   1-2
+    initialize_positions['1_3'] = (1, 15)  # 15m进 15m出            1-3
+    initialize_positions['1_4'] = (1, 10)  # 5进 30m出  顺势              1-4
     initialize_positions['1_5'] = (0, 0)  # 30进 30m出              1-4
     #   2、顺势super
-    initialize_positions['2_1'] = (0, 0)  # 这里15m图        2-1
+    initialize_positions['2_1'] = (1, 10)  # 这里15m图        2-1
     initialize_positions['2_2'] = (0, 0)  # 这里30m图        2-2
-    initialize_positions['2_3'] = (0, 0)  # 这里小时图       2-3
-    #  3、RSI  震荡
-    initialize_positions['3_1'] = (0, 0)  # 这里rsi15分进去，30分超买出来  2-4
-    initialize_positions['3_2'] = (0, 0)  # 这里30分超卖入场rsi ，30分超买出来
+    # initialize_positions['2_3'] = (0, 0)  # 这里小时图       2-3
+    # #  3、RSI  震荡
+    # initialize_positions['3_1'] = (0, 0)  # 这里rsi15分进去，30分超买出来  2-4
+    # initialize_positions['3_2'] = (0, 0)  # 这里30分超卖入场rsi ，30分超买出来
 
 
 # 更新一下仓位手动的
