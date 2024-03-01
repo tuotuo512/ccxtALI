@@ -13,20 +13,21 @@ initialize_positions = {f"{i}_{j}": (0, 0) for i in range(1, 4) for j in range(1
 # 假设信号从其他地方获得
 signals = {}  # 这将被设置为包含策略信号的字典
 
+XX = 'FET/USDT'  # 或者其他交易对，例如 'ETH/USDT', 'BTC/USDT' 等
 
 # 2. 手动设置特定策略的仓位状态
 def manual_update_positions():
     global initialize_positions
     # 示例：手动设置策略 '1_1' 的仓位为某个值，信号保持不变
 
-    initialize_positions['1_1'] = (0, 0)  # 3m这里是手动填入 目前仓位持仓 1-1
-    initialize_positions['1_2'] = (0, 0)  # 5m                   1-2
-    initialize_positions['1_3'] = (0, 0)  # 15m进 15m出            1-3
-    initialize_positions['1_4'] = (0, 0)  # 5进 30m出  顺势              1-4
-    initialize_positions['1_5'] = (0, 0)  # 30进 30m出              1-4
+    initialize_positions['1_1'] = (1, 24)  # 3m这里是手动填入 目前仓位持仓 1-1
+    initialize_positions['1_2'] = (1, 24)  # 5m                   1-2
+    initialize_positions['1_3'] = (1, 24)  # 15m进 15m出            1-3
+    initialize_positions['1_4'] = (1, 24)  # 5进 30m出  顺势              1-4
+    initialize_positions['1_5'] = (1, 24)  # 30进 30m出              1-4
     #   2、顺势super
-    initialize_positions['2_1'] = (0, 0)  # 这里15m图        2-1
-    initialize_positions['2_2'] = (0, 0)  # 这里30m图        2-2
+    initialize_positions['2_1'] = (1, 24)  # 这里15m图        2-1
+    initialize_positions['2_2'] = (1, 24)  # 这里30m图        2-2
     # initialize_positions['2_3'] = (0, 0)  # 这里小时图       2-3
     # #  3、RSI  震荡
     # initialize_positions['3_1'] = (0, 0)  # 这里rsi15分进去，30分超买出来  2-4
@@ -77,19 +78,20 @@ def run():
         # print('===程序新开始===，可用总资金',total_capital)
 
         # 相当于杠杆  倍数
-        r_per = 4  # 设置为0.1，你愿意将总资金的10%用于单个交易；1表示一倍杠杆一单；
+        r_per = 0.6  # 设置为0.1，你愿意将总资金的10%用于单个交易；1表示一倍杠杆一单；
 
         #   币最新价
         close_price = df_1m['close'].iloc[-1]
         #    仓位大小
         position_size = (total_capital * r_per) / close_price
-        min_position_size = 1  # uni最小下单量
 
-        #   如果资金不够，只下单最小单，如果够了， 则（ UNI保留1个小数点）
+        min_position_size = 4  # XX最小下单量
+
+        #   如果资金不够，只下单最小单，如果够了， 则（ xx保留????个小数点）
         if position_size < min_position_size:
             position_size = min_position_size
         else:
-            position_size = math.floor(position_size / 1) * 1  # 返回0.009的倍数
+            position_size = math.floor(position_size / min_position_size ) * min_position_size  # 返回 min_position_size 的倍数
             position_size = round(position_size, 0)  # 保留小数点后1位
         print('-------准备开仓仓位：', position_size, '-------')
         balance = exchange.fetch_balance()['free']['USDT']  # 获取可用USDT资金
@@ -107,7 +109,7 @@ def run():
         # print("当前信号状态：")
         # 执行交易
         for strategy_name in strategy.signals:
-            execute_trade(exchange, strategy, strategy_name, initialize_positions, position_size, balance, cost)
+            execute_trade(exchange, strategy, strategy_name, initialize_positions, position_size, balance, cost, close_price)
 
         time.sleep(30)
 
@@ -115,26 +117,26 @@ def run():
 # 6. 定义执行交易的函数
 
 
-def execute_trade(exchange, strategy, strategy_name, positions_state, position_size, balance, cost):
+def execute_trade(exchange, strategy, strategy_name, positions_state, position_size, balance, cost, close_price):
     signal, position = positions_state.get(strategy_name, (0, 0))  # 获取信号和仓位
 
     print(f"准备执行交易 - 策略名称: {strategy_name}, 信号: {signal}, 仓位: {position}")
 
     try:
-        if signal == 1 and position == 0:
+        if signal == 1 and position == 0 and close_price < 22:
             # 买入逻辑，先检查资金是否足够
             if balance < cost:
                 print(f"资金不足，无法执行买入操作：{strategy_name}")
                 return  # 资金不足，直接返回，不执行交易
 
-            exchange.create_market_order(symbol='UNI/USDT:USDT', side='buy', amount=position_size)
+            exchange.create_market_order(symbol=XX, side='buy', amount=position_size)
             positions_state[strategy_name] = (signal, position_size)  # 更新仓位状态
             print(f'----------------------------------------成功买入{strategy_name}:', position_size)
             print(f'{strategy_name}上的仓位：', positions_state[strategy_name])
 
         elif signal == -1 and position > 0:
             # 卖出逻辑
-            exchange.create_market_order(symbol='UNI/USDT:USDT', side='sell', amount=position)
+            exchange.create_market_order(symbol=XX, side='sell', amount=position)
             positions_state[strategy_name] = (signal, 0)  # 清空仓位
             print(f'---------------------------------------成功卖出{strategy_name}:', position)
 
