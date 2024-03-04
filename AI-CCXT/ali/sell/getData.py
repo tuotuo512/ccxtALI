@@ -5,6 +5,8 @@ import pandas as pd
 import time
 import ccxt
 
+XX = 'ETH/USDT:USDT'  # 或者其他交易对，例如 'ETH/USDT', 'UNI/USDT' 等
+
 
 def initialize_exchange():
     # 创建并配置交易所实例
@@ -13,12 +15,10 @@ def initialize_exchange():
     exchange = ccxt.binance({
         'apiKey': api_key,
         'secret': api_secret,
+        'timeout': 20000,  # 设置超时时间为60秒
         'enableRateLimit': True,
         'options': {'defaultType': 'swap'},
-        'proxies': {
-            'http': 'http://127.0.0.1:18081',
-            'https': 'http://127.0.0.1:18081',
-        }
+
     })
     return exchange
 
@@ -31,21 +31,25 @@ def reconnect_exchange(exchange):
             exchange.load_markets()
             print("连接交易所成功")
             return True
+        except ccxt.RequestTimeout as e:
+            print("请求超时，正在重试...")
+            retry_count += 1
+            time.sleep(10)  # 等待一段时间后重试，这里设置为10秒
         except Exception as e:
             print("重新连接交易所失败:", str(e))
             retry_count += 1
-            time.sleep(120)
+            time.sleep(120)  # 对于非超时错误，等待时间设置得更长一些
     print("无法重新连接交易所，达到最大重试次数")
     return False
 
 
 def fetch_and_process_market_data(exchange, historical_df=None):
     if historical_df is None or historical_df.empty:
-        data = exchange.fetch_ohlcv('ETH/USDT:USDT', '1m', limit=1000)
+        data = exchange.fetch_ohlcv(XX, '1m', limit=1000)
         historical_df = pd.DataFrame(data, columns=['timestamp', 'open', 'high', 'low', 'close', 'volume'])
     else:
         # 获取最新的一根K线
-        latest_data = exchange.fetch_ohlcv('ETH/USDT:USDT', '1m', limit=1)
+        latest_data = exchange.fetch_ohlcv(XX, '1m', limit=1)
         latest_df = pd.DataFrame(latest_data, columns=['timestamp', 'open', 'high', 'low', 'close', 'volume'])
 
         # 在添加之前移除任何重复的时间戳
@@ -82,24 +86,24 @@ def fetch_and_process_market_data(exchange, historical_df=None):
     return df_1m, df_3m, df_5m, df_15m, df_30m
 
 
-# 主函数
-def main():
-    exchange = initialize_exchange()
-    if reconnect_exchange(exchange):
-        df_1m, df_3m, df_5m, df_15m, df_30m = fetch_and_process_market_data(exchange)
-
-        # 打印1分钟K线的行数
-        print(f"15分钟K线的行数: {len(df_15m)}")
-        print(df_15m)
-
-        # 打印最新一分钟的收盘价
-        if not df_15m.empty:
-            latest_close_price = df_15m['close'].iloc[-1]
-            print(f"最新一分钟的收盘价: {latest_close_price}")
-        else:
-            print("没有获取到最新的1分钟K线数据")
-
-
-# 运行主函数
-if __name__ == '__main__':
-    main()
+# # 主函数
+# def main():
+#     exchange = initialize_exchange()
+#     if reconnect_exchange(exchange):
+#         df_1m, df_3m, df_5m, df_15m, df_30m = fetch_and_process_market_data(exchange)
+#
+#         # 打印1分钟K线的行数
+#         print(f"15分钟K线的行数: {len(df_15m)}")
+#         print(df_15m)
+#
+#         # 打印最新一分钟的收盘价
+#         if not df_15m.empty:
+#             latest_close_price = df_15m['close'].iloc[-1]
+#             print(f"最新一分钟的收盘价: {latest_close_price}")
+#         else:
+#             print("没有获取到最新的1分钟K线数据")
+#
+#
+# # 运行主函数
+# if __name__ == '__main__':
+#     main()
