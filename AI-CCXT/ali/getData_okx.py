@@ -9,10 +9,6 @@ def initialize_exchange():
         'secret': '43914C14D233A853A098762FC945F71E',
         'password': 'Tt123457.',  # Replace with your API passphrase
         'enableRateLimit': True,  # Enables built-in rate limit support
-        'proxies': {
-            'http': 'http://127.0.0.1:18081',
-            'https': 'http://127.0.0.1:18081',
-        }
     })
     # Specify the account type, in this case, futures
     exchange.options['defaultType'] = 'futures'

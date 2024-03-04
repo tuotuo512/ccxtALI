@@ -46,11 +46,11 @@ def reconnect_exchange(exchange):
 
 def fetch_and_process_market_data(exchange, historical_df=None):
     if historical_df is None or historical_df.empty:
-        data = exchange.fetch_ohlcv('ARB/USDT:USDT', '1m', limit=1000)
+        data = exchange.fetch_ohlcv('JUP/USDT:USDT', '1m', limit=1000)
         historical_df = pd.DataFrame(data, columns=['timestamp', 'open', 'high', 'low', 'close', 'volume'])
     else:
         # 获取最新的一根K线
-        latest_data = exchange.fetch_ohlcv('ARB/USDT:USDT', '1m', limit=1)
+        latest_data = exchange.fetch_ohlcv('JUP/USDT:USDT', '1m', limit=1)
         latest_df = pd.DataFrame(latest_data, columns=['timestamp', 'open', 'high', 'low', 'close', 'volume'])
 
         # 在添加之前移除任何重复的时间戳

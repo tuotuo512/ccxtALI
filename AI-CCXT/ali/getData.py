@@ -1,15 +1,24 @@
+# 交易所和K线数据
+
+import os
 import pandas as pd
 import time
 import ccxt
 
+XX = 'ETH/USDT:USDT'  # 或者其他交易对，例如 'ETH/USDT', 'UNI/USDT' 等
+
 
 def initialize_exchange():
     # 创建并配置交易所实例
+    api_key = os.environ.get('BINANCE_API_KEY')
+    api_secret = os.environ.get('BINANCE_API_SECRET')
     exchange = ccxt.binance({
-        'apiKey': 'TwbrGtP4y4epwunioTQwVJu1MucF3lE8cTVIKswQ1PS6FNRPwRRnJIdmVPcJHBpd',
-        'secret': 'IbR2CmrZy7aisjKE9kpdFNgqTICyPi1fRyYqc14xv4XFStAeFeEpCS2nU9nRUTC7',
+        'apiKey': api_key,
+        'secret': api_secret,
+        'timeout': 20000,  # 设置超时时间为60秒
         'enableRateLimit': True,
-        'options': {'defaultType': 'swap'}
+        'options': {'defaultType': 'swap'},
+
     })
     return exchange
 
@@ -22,21 +31,25 @@ def reconnect_exchange(exchange):
             exchange.load_markets()
             print("连接交易所成功")
             return True
+        except ccxt.RequestTimeout as e:
+            print("请求超时，正在重试...")
+            retry_count += 1
+            time.sleep(10)  # 等待一段时间后重试，这里设置为10秒
         except Exception as e:
             print("重新连接交易所失败:", str(e))
             retry_count += 1
-            time.sleep(120)
+            time.sleep(120)  # 对于非超时错误，等待时间设置得更长一些
     print("无法重新连接交易所，达到最大重试次数")
     return False
 
 
 def fetch_and_process_market_data(exchange, historical_df=None):
     if historical_df is None or historical_df.empty:
-        data = exchange.fetch_ohlcv('ETH/USDT:USDT', '1m', limit=1000)
+        data = exchange.fetch_ohlcv(XX, '1m', limit=1000)
         historical_df = pd.DataFrame(data, columns=['timestamp', 'open', 'high', 'low', 'close', 'volume'])
     else:
         # 获取最新的一根K线
-        latest_data = exchange.fetch_ohlcv('ETH/USDT:USDT', '1m', limit=1)
+        latest_data = exchange.fetch_ohlcv(XX, '1m', limit=1)
         latest_df = pd.DataFrame(latest_data, columns=['timestamp', 'open', 'high', 'low', 'close', 'volume'])
 
         # 在添加之前移除任何重复的时间戳
@@ -70,10 +83,8 @@ def fetch_and_process_market_data(exchange, historical_df=None):
     df_30m = historical_df.resample('30Min').agg(
         {'open': 'first', 'high': 'max', 'low': 'min', 'close': 'last', 'volume': 'sum'})
 
-    df_60m = historical_df.resample('60Min').agg(
-        {'open': 'first', 'high': 'max', 'low': 'min', 'close': 'last', 'volume': 'sum'})
+    return df_1m, df_3m, df_5m, df_15m, df_30m
 
-    return df_1m, df_3m, df_5m, df_15m, df_30m, df_60m
 
 # # 主函数
 # def main():
