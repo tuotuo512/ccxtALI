@@ -126,7 +126,7 @@ def execute_trade(exchange, strategy, strategy_name, positions_state, position_s
     print(f"准备执行交易 - 策略名称: {strategy_name}, 信号: {signal}, 当下仓位: {position}")
 
     try:
-        if signal == 1 and position == 0 and (3460 < close_price < 3600):
+        if signal == 1 and position == 0 :
             # 买入逻辑，先检查资金是否足够
             if balance < cost:
                 print(f"资金不足，无法执行买入操作：{strategy_name}")
