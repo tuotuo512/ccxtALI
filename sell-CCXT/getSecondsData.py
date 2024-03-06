@@ -10,12 +10,12 @@ kline_data = pd.DataFrame(columns=columns)
 # 当前 K 线的开始时间
 start_time = None
 
+
 # 处理收到的消息
 def on_message(ws, message):
     print("Received Message:", message)  # 打印接收到的消息
     global kline_data, start_time
     current_time = datetime.datetime.utcnow()  # 使用协调世界时
-
 
     # 解析消息
     data = json.loads(message)
@@ -37,6 +37,7 @@ def on_message(ws, message):
         kline_data.at[0, 'low'] = min(kline_data.at[0, 'low'], price)
         kline_data.at[0, 'close'] = price
 
+
 # 创建 WebSocket 连接
 def on_open(ws):
     print("WebSocket Client Connected")
@@ -46,6 +47,7 @@ def on_open(ws):
         "id": 1
     }
     ws.send(json.dumps(subscribe_message))
+
 
 # 主函数
 if __name__ == "__main__":
