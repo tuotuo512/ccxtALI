@@ -6,7 +6,7 @@ def initialize_exchange():
     # 创建并配置交易所实例
     exchange = ccxt.okx({
         'apiKey': 'd4f72342-a1e3-4b4d-bb6d-a0f764eaac4e',
-        'secret': '43914C14D233A853A098762FC945F71E',
+        'secret': 'IbR2CmrZy7aisjKE9kpdFNgqTICyPi1fRyYqc14xv4XFStAeFeEpCS2nU9nRUTC7',
         'password': 'Tt123457.',  # Replace with your API passphrase
         'enableRateLimit': True,  # Enables built-in rate limit support
     })
