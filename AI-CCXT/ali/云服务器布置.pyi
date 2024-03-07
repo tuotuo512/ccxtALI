@@ -8,6 +8,12 @@
 #sudo apt-get install git
 
 #git仓库
+
+#将更改的文件添加到暂存区：
+# 1.  git add AI-CCXT/ali/getData.py AI-CCXT/ali/run.py
+# 2 .  git stash push -m "保存本地更改"
+# 3.  git pull
+
 #   git clone https://github.com/tuotuo512/ccxtALI.git
 
 
