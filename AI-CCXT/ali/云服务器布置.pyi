@@ -40,6 +40,10 @@
 #  2、 在 screen 会话中运行您的脚本：  python3 run.py
 #  3、 回家后，重新连接到会话：     screen -r mysession
 
+#  查看运行中的 run.py 进程
+#  ps aux | grep run.py
+#  kill 000000
+
 #  查看IP  curl ifconfig.me
 
 #  更新服务器仓库  git pull origin master
