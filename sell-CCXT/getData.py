@@ -5,7 +5,7 @@ import pandas as pd
 import time
 import ccxt
 
-XX = 'DYDX/USDT:USDT'  # 或者其他交易对，例如 'ETH/USDT', 'UNI/USDT' 等
+XX = 'BTC/USDT:USDT'  # 或者其他交易对，例如 'ETH/USDT', 'UNI/USDT' 等
 
 
 def initialize_exchange():
