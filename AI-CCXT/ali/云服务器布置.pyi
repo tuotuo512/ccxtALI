@@ -7,13 +7,13 @@
 #sudo apt-get update
 #sudo apt-get install git
 
-#git仓库
+#git仓库  提交 克隆
 
-#将更改的文件添加到暂存区：
+#更改
 # 1.  git add AI-CCXT/ali/getData.py AI-CCXT/ali/run.py
 # 2 .  git stash push -m "保存本地更改"
 # 3.  git pull
-
+#  克隆
 #   git clone https://github.com/tuotuo512/ccxtALI.git
 
 
@@ -32,6 +32,7 @@
 
 # 打开文件夹路径
 #    cd ccxtALI/AI-CCXT/ali
+#    cd ccxtALI/AI-CCXT/ali/sell
 
 #  更新某个文件 先删除
 #    rm getData.py
@@ -39,7 +40,7 @@
 #    因为 wget 通常用于下载文件或网页，而不是克隆 Git 仓库。
 #    wget https://raw.githubusercontent.com/tuotuo512/ccxtALI/master/AI-CCXT/ali/getData.py
 
-#    python3 run.py
+#    python3 run.py            python3 run_sell.py
 
 #   查看IP  curl ifconfig.me
 
