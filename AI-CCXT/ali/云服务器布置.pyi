@@ -25,7 +25,7 @@
 
 
 # 打开文件夹路径
-#    cd ccxtALI/AI-CCXT/ali
+#    cd ccxtALI/AI-CCXT/ali         cd ccxtALI/AI-CCXT/ali/sell
 
 #  更新某个文件 先删除
 #    rm getData.py
@@ -35,7 +35,12 @@
 
 #    python3 run.py
 
-#   查看IP  curl ifconfig.me
+# 回家看
+#  1、在服务器上启动一个新的 screen 会话：     screen -S mysession
+#  2、 在 screen 会话中运行您的脚本：  python3 run.py
+#  3、 回家后，重新连接到会话：     screen -r mysession
+
+#  查看IP  curl ifconfig.me
 
 #  更新服务器仓库  git pull origin master
 

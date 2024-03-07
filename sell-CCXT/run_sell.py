@@ -12,7 +12,7 @@ exchange = initialize_exchange()
 # 初始化仓位状态字典
 initialize_positions = {f"{i}_{j}": (0, 0) for i in range(1, 4) for j in range(1, 6)}
 
-XX = 'DYDX/USDT:USDT'  # :USDT 代表永续或者其他交易对，例如 'ETH/USDT', 'BTC/USDT' 等
+XX = 'BTC/USDT:USDT'  # :USDT 代表永续或者其他交易对，例如 'ETH/USDT', 'BTC/USDT' 等
 
 # 假设信号从其他地方获得
 signals = {}  # 这将被设置为包含策略信号的字典
@@ -81,14 +81,14 @@ def run():
         print('===程序新开始===，总资金', total_capital)
 
         # 相当于杠杆  倍数
-        r_per = 0.1  # 设置为0.1，你愿意将总资金的10%用于单个交易；1表示一倍杠杆一单；极限持仓倍数就是 1*N个策略
+        r_per = 20  # 设置为0.1，你愿意将总资金的10%用于单个交易；1表示一倍杠杆一单；极限持仓倍数就是 1*N个策略
 
         #   币最新价
         close_price = df_1m['close'].iloc[-1]
         #    仓位大小
         position_size = (total_capital * r_per) / close_price
 
-        min_position_size = 1.3  # XX最小下单量
+        min_position_size = 0.002  # XX最小下单量
 
         #   如果资金不够，只下单最小单，如果够了， 则（ xx保留????个小数点）
         if position_size < min_position_size:
@@ -128,7 +128,7 @@ def execute_trade(exchange, strategy, strategy_name, positions_state, position_s
     print(f"准备执行交易 - 策略名称: {strategy_name}, 信号: {signal}, 当下仓位: {position}")
 
     try:
-        if signal == -1 and position == 0:
+        if signal == 1 and position == 0:
             # 买入逻辑，先检查资金是否足够
             if balance < cost:
                 print(f"资金不足，无法执行买入操作：{strategy_name}")
@@ -140,7 +140,7 @@ def execute_trade(exchange, strategy, strategy_name, positions_state, position_s
             print(f'{strategy_name}上的仓位：', positions_state[strategy_name])
 
 
-        elif signal == 1 and position > 0:
+        elif signal == -1 and position > 0:
             # 卖出逻辑
             exchange.create_market_order(symbol=XX, side='buy', amount=position)
             print(f'---------------------------------------成功买出{strategy_name}:', position)
