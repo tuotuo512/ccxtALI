@@ -70,58 +70,58 @@ class MyStrategy:
         # 1_1空单开仓逻辑：3分图进 3分出
         if df_3m['close'].iloc[-3] >= supertrend_3m.iloc[-3] > df_3m['close'].iloc[-2]:
             strategy_name = "1_1"  # 根据update_position中的参数来构造策略名称
-            self.update_position(strategy_name, 1)  # 买入信号
+            self.update_position(strategy_name, -1)  # 买入信号
             print(f"更新了空信号 {strategy_name}: {self.signals[strategy_name]}")  # 打印以确认
         #   空卖出逻辑： 5m跌破
         if df_3m['close'].iloc[-2] > supertrend_3m.iloc[-3] > df_3m['close'].iloc[-3]:
             strategy_name = "1_1"  # 根据update_position中的参数来构造策略名称
-            self.update_position(strategy_name, -1)  # 买入信号
+            self.update_position(strategy_name, 1)  # 买入信号
             print(f"更新了空信号 {strategy_name}: {self.signals[strategy_name]}")  # 打印以确认
 
             # 1_2空开仓逻辑：5分图进 5分出
         if df_5m['close'].iloc[-3] >= supertrend_5m.iloc[-3] > df_5m['close'].iloc[-2]:
             strategy_name = "1_2"  # 根据update_position中的参数来构造策略名称
-            self.update_position(strategy_name, 1)  # 买入信号
+            self.update_position(strategy_name, -1)  # 买入信号
             print(f"更新了空信号 {strategy_name}: {self.signals[strategy_name]}")  # 打印以确认
             #   空卖出逻辑： 5m跌破
         if df_5m['close'].iloc[-2] > supertrend_5m.iloc[-3] > df_5m['close'].iloc[-3]:
             strategy_name = "1_2"  # 根据update_position中的参数来构造策略名称
-            self.update_position(strategy_name, -1)  # 买入信号
+            self.update_position(strategy_name, 1)  # 买入信号
             print(f"更新了空信号 {strategy_name}: {self.signals[strategy_name]}")  # 打印以确认
 
         #   1_3. 买入逻辑: 15m进15m出
         if df_15m['close'].iloc[-3] > supertrend_15m.iloc[-3] > df_15m['close'].iloc[-2]:
             strategy_name = "1_3"  # 根据update_position中的参数来构造策略名称
-            self.update_position(strategy_name, 1)  # 买入信号
+            self.update_position(strategy_name, -1)  # 买入信号
             print(f"更新了空信号 {strategy_name}: {self.signals[strategy_name]}")  # 打印以确认
             # 1_3平仓逻辑：15分 图super下穿
         if df_15m['close'].iloc[-2] > supertrend_15m.iloc[-3] > df_15m['close'].iloc[-3]:
             strategy_name = "1_3"  # 根据update_position中的参数来构造策略名称
-            self.update_position(strategy_name, -1)  # 买入信号
+            self.update_position(strategy_name, 1)  # 买入信号
             print(f"更新了空信号 {strategy_name}: {self.signals[strategy_name]}")  # 打印以确认
 
         #   1_4. 买入逻辑：5分进，30分出，小时图收盘价小于sup，小时图收盘价还小于4小时
         if (df_5m['close'].iloc[-3] >= supertrend_5m.iloc[-3] > df_5m['close'].iloc[-2]) \
                 and (df_5m['close'].iloc[-2] < supertrend_30m.iloc[-2]):
             strategy_name = "1_4"  # 根据update_position中的参数来构造策略名称
-            self.update_position(strategy_name, 1)  # 买入信号
+            self.update_position(strategy_name, -1)  # 买入信号
             print(f"更新了空信号 {strategy_name}: {self.signals[strategy_name]}")  # 打印以确认
         #   1_4卖出逻辑：按照半小时图
         if df_30m['close'].iloc[-2] > supertrend_30m.iloc[-3] > df_30m['close'].iloc[-3] \
                 or (df_15m['close'].iloc[-2] > (1.02 * supertrend_15m.iloc[-3])):  # 小于suer止损
             strategy_name = "1_4"  # 根据update_position中的参数来构造策略名称
-            self.update_position(strategy_name, -1)  # 买入信号
+            self.update_position(strategy_name, 1)  # 买入信号
             print(f"更新了空信号 {strategy_name}: {self.signals[strategy_name]}")  # 打印以确认
 
         #   1_5. 买入逻辑：30分钟图进 30分钟图出
         if df_30m['close'].iloc[-3] >= supertrend_30m.iloc[-3] > df_30m['close'].iloc[-2]:
             strategy_name = "1_5"  # 根据update_position中的参数来构造策略名称
-            self.update_position(strategy_name, 1)  # 买入信号
+            self.update_position(strategy_name, -1)  # 买入信号
             print(f"更新了空信号 {strategy_name}: {self.signals[strategy_name]}")  # 打印以确认
         #   卖出逻辑：小时图下穿
         if df_30m['close'].iloc[-2] > supertrend_30m.iloc[-3] > df_30m['close'].iloc[-3]:
             strategy_name = "1_5"  # 根据update_position中的参数来构造策略名称
-            self.update_position(strategy_name, -1)  # 买入信号
+            self.update_position(strategy_name, 1)  # 买入信号
             print(f"更新了空信号 {strategy_name}: {self.signals[strategy_name]}")  # 打印以确认
 
     # #   第二套.趋势共振单信号函数
