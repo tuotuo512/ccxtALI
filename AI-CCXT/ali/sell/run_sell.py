@@ -2,7 +2,6 @@
 import time
 import math
 
-
 from SuperRsiTrend_sell import MyStrategy
 from getData import initialize_exchange, reconnect_exchange, fetch_and_process_market_data
 
@@ -128,7 +127,7 @@ def execute_trade(exchange, strategy, strategy_name, positions_state, position_s
     print(f"准备执行交易 - 策略名称: {strategy_name}, 信号: {signal}, 当下仓位: {position}")
 
     try:
-        if signal == -1 and position == 0:
+        if signal == 1 and position == 0:
             # 买入逻辑，先检查资金是否足够
             if balance < cost:
                 print(f"资金不足，无法执行买入操作：{strategy_name}")
@@ -140,7 +139,7 @@ def execute_trade(exchange, strategy, strategy_name, positions_state, position_s
             print(f'{strategy_name}上的仓位：', positions_state[strategy_name])
 
 
-        elif signal == 1 and position > 0:
+        elif signal == -1 and position > 0:
             # 卖出逻辑
             exchange.create_market_order(symbol=XX, side='buy', amount=position)
             print(f'---------------------------------------成功买出{strategy_name}:', position)
@@ -153,6 +152,3 @@ def execute_trade(exchange, strategy, strategy_name, positions_state, position_s
 
 # 运行程序
 run()
-
-
-
