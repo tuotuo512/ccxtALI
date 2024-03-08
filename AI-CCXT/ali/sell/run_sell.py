@@ -2,6 +2,7 @@
 import time
 import math
 
+
 from SuperRsiTrend_sell import MyStrategy
 from getData import initialize_exchange, reconnect_exchange, fetch_and_process_market_data
 
@@ -80,14 +81,14 @@ def run():
         print('===程序新开始===，总资金', total_capital)
 
         # 相当于杠杆  倍数
-        r_per = 25  # 设置为0.1，你愿意将总资金的10%用于单个交易；1表示一倍杠杆一单；极限持仓倍数就是 1*N个策略
+        r_per = 15  # 设置为0.1，你愿意将总资金的10%用于单个交易；1表示一倍杠杆一单；极限持仓倍数就是 1*N个策略
 
         #   币最新价
         close_price = df_1m['close'].iloc[-1]
         #    仓位大小
         position_size = (total_capital * r_per) / close_price
 
-        min_position_size = 0.006  # XX最小下单量
+        min_position_size = 0.002  # XX最小下单量
 
         #   如果资金不够，只下单最小单，如果够了， 则（ xx保留????个小数点）
         if position_size < min_position_size:
@@ -152,3 +153,6 @@ def execute_trade(exchange, strategy, strategy_name, positions_state, position_s
 
 # 运行程序
 run()
+
+
+
