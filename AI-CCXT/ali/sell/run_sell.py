@@ -87,7 +87,7 @@ def run():
         #    仓位大小
         position_size = (total_capital * r_per) / close_price
 
-        min_position_size = 0.006  # XX最小下单量
+        min_position_size = 0.002  # XX最小下单量
 
         #   如果资金不够，只下单最小单，如果够了， 则（ xx保留????个小数点）
         if position_size < min_position_size:

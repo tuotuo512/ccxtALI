@@ -108,7 +108,7 @@ class MyStrategy:
             print(f"更新了空信号 {strategy_name}: {self.signals[strategy_name]}")  # 打印以确认
         #   1_4卖出逻辑：按照半小时图
         if df_30m['close'].iloc[-2] > supertrend_30m.iloc[-3] > df_30m['close'].iloc[-3] \
-                or (df_15m['close'].iloc[-2] > (1.02 * supertrend_15m.iloc[-3])):  # 小于suer止损
+                or (df_15m['close'].iloc[-2] < (0.98 * supertrend_15m.iloc[-3])):  # 偏离2%
             strategy_name = "1_4"  # 根据update_position中的参数来构造策略名称
             self.update_position(strategy_name, 1)  # 买入信号
             print(f"更新了空信号 {strategy_name}: {self.signals[strategy_name]}")  # 打印以确认

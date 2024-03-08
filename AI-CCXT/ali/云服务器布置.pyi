@@ -31,7 +31,7 @@
 #    rm getData.py
 
 #    因为 wget 通常用于下载文件或网页，而不是克隆 Git 仓库。
-#    wget https://raw.githubusercontent.com/tuotuo512/ccxtALI/master/AI-CCXT/ali/getData.py
+#    wget https://raw.githubusercontent.com/tuotuo512/ccxtALI/master/AI-CCXT/ali/sell/SuperRsiTrend_sell.py
 
 #    python3 run.py
 
