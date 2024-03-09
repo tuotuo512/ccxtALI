@@ -22,11 +22,11 @@ def manual_update_positions():
     global initialize_positions
     # 示例：手动设置策略 '1_1' 的仓位为某个值，信号保持不变
 
-    initialize_positions['1_1'] = (-1, 0.08)  # 3m这里是手动填入 目前仓位持仓 1-1
-    initialize_positions['1_2'] = (-1, 0.08)  # 5m                   1-2
-    initialize_positions['1_3'] = (-1, 0.08)  # 15m进 15m出            1-3
+    initialize_positions['1_1'] = (0, 0)  # 3m这里是手动填入 目前仓位持仓 1-1
+    initialize_positions['1_2'] = (0, 0)  # 5m                   1-2
+    initialize_positions['1_3'] = (0, 0)  # 15m进 15m出            1-3
     initialize_positions['1_4'] = (0, 0)  # 5进 30m出  顺势              1-4
-    initialize_positions['1_5'] = (-1, 0.08)  # 30进 30m出              1-4
+    initialize_positions['1_5'] = (0, 0)  # 30进 30m出              1-4
     #   2、顺势super
     initialize_positions['2_1'] = (0, 0)  # 这里15m图        2-1
     initialize_positions['2_2'] = (0, 0)  # 这里30m图        2-2

@@ -35,7 +35,7 @@
 #    wget https://raw.githubusercontent.com/tuotuo512/ccxtALI/master/AI-CCXT/ali/sell/SuperRsiTrend_sell.py
 
 #  运行
-#    python3 run.py
+#    python3 run_sell.py
 
 # 回家看
 #  1、在服务器上启动一个新的 screen 会话：     screen -S mysession
@@ -51,5 +51,5 @@
 #  更新服务器仓库  git pull origin master
 
 #  打开编辑：
-#  nano run_sell.py
+#  nano run_sell.py     nano getData.py
 #  nano SuperRsiTrend_sell.py
