@@ -10,18 +10,13 @@ XX = 'ETH/USDT:USDT'  # 或者其他交易对，例如 'ETH/USDT', 'UNI/USDT' �
 
 def initialize_exchange():
     # 创建并配置交易所实例
-    api_key = os.environ.get('BINANCE_API_KEY')
-    api_secret = os.environ.get('BINANCE_API_SECRET')
     exchange = ccxt.binance({
-        'apiKey': api_key,
-        'secret': api_secret,
+        'apiKey': 'TwbrGtP4y4epwunioTQwVJu1MucF3lE8cTVIKswQ1PS6FNRPwRRnJIdmVPcJHBpd',
+        'secret': 'IbR2CmrZy7aisjKE9kpdFNgqTICyPi1fRyYqc14xv4XFStAeFeEpCS2nU9nRUTC7',
         'timeout': 20000,  # 设置超时时间为60秒
         'enableRateLimit': True,
         'options': {'defaultType': 'swap'},
-        'proxies': {
-            'http': 'http://127.0.0.1:18081',
-            'https': 'http://127.0.0.1:18081',
-        }
+
     })
     return exchange
 
