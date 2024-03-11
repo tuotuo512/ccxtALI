@@ -27,53 +27,32 @@
 # 打开文件夹路径
 #    cd ccxtALI/AI-CCXT/ali         cd ccxtALI/AI-CCXT/ali/sell
 
+
 #  更新某个文件 先删除
 #    rm getData.py
+#    先删除   因为 wget 通常用于下载文件或网页，而不是克隆 Git 仓库。
+#    wget https://raw.githubusercontent.com/tuotuo512/ccxtALI/master/AI-CCXT/ali/sell/run_sell.py
+#    wget https://raw.githubusercontent.com/tuotuo512/ccxtALI/master/AI-CCXT/ali/sell/SuperRsiTrend_sell.py
 
-#    因为 wget 通常用于下载文件或网页，而不是克隆 Git 仓库。
-#    wget https://raw.githubusercontent.com/tuotuo512/ccxtALI/master/AI-CCXT/ali/getData.py
-
-#    python3 run.py
+#  运行
+#    python3 run_sell.py
 
 # 回家看
-#  1、在服务器上启动一个新的 screen 会话：     screen -S mysession
-#  2、 在 screen 会话中运行您的脚本：  python3 run.py
-#  3、 回家后，重新连接到会话：     screen -r mysession
+#  1、在服务器上启动一个新的 screen 会话：     screen -S 123
+#  2、 在 screen 会话中运行您的脚本：  python3 run_sell.py
+#  3、所有会话列表   screen -ls
+#  断开会话：如果您想离开会话而保持它在后台运行，可以按下 Ctrl + A，然后按下 D。这会将您的 screen 会话放到后台。
+#  恢复会话：要恢复名为 123 的会话，可以使用以下命令：
+#  4、 回家后，重新连接到会话：     screen -r 123
 
 #  查看运行中的 run.py 进程
-#  ps aux | grep run.py
+#  ps aux | grep run_sell.py
 #  kill 000000
 
 #  查看IP  curl ifconfig.me
 
 #  更新服务器仓库  git pull origin master
 
-
-# 策略组合：=================
-# X*震荡  + Y*趋势
-
-# 参数比例 ：时间、 震荡参数、 看涨参数  、预期价格比率、日K站稳？
-
-
-# 仓位策略===================
-# 目前单一
-
-
-# 策略逻辑=====================
-# 指标-----------------
-# 1.成交量放大，抓大跌 反转
-# 2.super 抓趋势
-# 3.RSI背离 底部进场，回归离场背离减仓
-
-# 支撑 123
-# 阻力 123
-# 进场
-# 离场
-
-
-# 1-抄底策略-----------------------
-# 策略1 ：如果抄底，偏离+超卖+秒级反转
-# 策略2 ： 支撑跌破，触发止损，成交量暴涨
-
-# 2-震荡策略-----------------------
-# 策略1 ：偏离 +反转
+#  打开编辑：
+#  nano run_sell.py     nano getData.py
+#  nano SuperRsiTrend_sell.py
