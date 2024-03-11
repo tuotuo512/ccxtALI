@@ -11,7 +11,7 @@ exchange = initialize_exchange()
 # 初始化仓位状态字典
 initialize_positions = {f"{i}_{j}": (0, 0) for i in range(1, 4) for j in range(1, 6)}
 
-XX = ' BTC/USDT:USDT'  # :USDT 代表永续或者其他交易对，例如 'ETH/USDT', 'BTC/USDT' 等
+XX = ' ETH/USDT:USDT'  # :USDT 代表永续或者其他交易对，例如 'ETH/USDT', 'BTC/USDT' 等
 
 # 假设信号从其他地方获得
 signals = {}  # 这将被设置为包含策略信号的字典
@@ -80,7 +80,7 @@ def run():
         print('===程序新开始===，总资金', total_capital)
 
         # 相当于杠杆  倍数
-        r_per = 8  # 设置为0.1，你愿意将总资金的10%用于单个交易；1表示一倍杠杆一单；极限持仓倍数就是 1*N个策略
+        r_per = 1  # 设置为0.1，你愿意将总资金的10%用于单个交易；1表示一倍杠杆一单；极限持仓倍数就是 1*N个策略
 
         #   币最新价
         close_price = df_1m['close'].iloc[-1]
@@ -137,6 +137,7 @@ def execute_trade(exchange, strategy, strategy_name, positions_state, position_s
             positions_state[strategy_name] = (signal, position_size)  # 更新仓位状态
             print(f'----------------------------------------成功卖入{strategy_name}:', position_size)
             print(f'{strategy_name}上的仓位：', positions_state[strategy_name])
+
 
         elif signal == 1 and position > 0:
             # 卖出逻辑

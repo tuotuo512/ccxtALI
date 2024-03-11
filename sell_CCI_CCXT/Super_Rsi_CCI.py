@@ -1,7 +1,7 @@
 import pandas as pd
 import numpy as np
 from ta.momentum import RSIIndicator
-
+from ta.trend import CCIIndicator
 
 def tr(data):
     data['previous_close'] = data['close'].shift(1)
@@ -48,6 +48,21 @@ def rsi(data: pd.DataFrame, period=14):
     rsi_indicator = RSIIndicator(data["close"], period)
     rsi = rsi_indicator.rsi()
     return rsi
+
+def cci(data: pd.DataFrame, period=20, constant=0.015):
+    """
+    计算CCI（商品渠道指数）。
+
+    :param data: 包含 'high', 'low', 和 'close' 列的Pandas DataFrame。
+    :param period: CCI计算的周期，默认为20。
+    :param constant: 用于CCI计算的常数，通常是0.015。
+    :return: CCI值的Pandas Series。
+    """
+    cci_indicator = CCIIndicator(high=data["high"], low=data["low"], close=data["close"], window=period, constant=constant)
+    cci = cci_indicator.cci()
+    return cci
+
+
 
 
 #
