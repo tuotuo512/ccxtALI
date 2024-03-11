@@ -1,6 +1,6 @@
 # 交易策略逻辑部分
 
-from Super_Rsi_CCI import rsi, supertrend,cci
+from SuperRsi import rsi, supertrend
 import datetime
 
 
@@ -25,7 +25,6 @@ class MyStrategy:
     def set_indicators(self):
         for timeframe in ['1m', '3m', '5m', '15m', '30m']:
             self.indicators[f"rsi_{timeframe}"] = rsi(self.dataframes[timeframe], period=14)
-            self.indicators[f"cci_{timeframe}"] = cci(self.dataframes[timeframe], period=20)
             self.indicators[f"supertrend_{timeframe}"] = supertrend(self.dataframes[timeframe], factor=3, period=10)
 
     # 修改 update_position 方法来更新 self.signals 字典，直接使用策略名称作为键：
@@ -48,20 +47,16 @@ class MyStrategy:
         supertrend_5m = self.indicators['supertrend_5m']
         supertrend_15m = self.indicators['supertrend_15m']
         supertrend_30m = self.indicators['supertrend_30m']
-        cci_5m = self.indicators['rsi_5m']
-        cci_15m = self.indicators['rsi_15m']
-        cci_30m = self.indicators['rsi_30m']
-        cci_1h = self.indicators['rsi_1h']
 
         # iloc[]用于基于整数位置的索引。它可以帮助你选择或操作数据。在iloc[]中，数字 -1代表最后一行(最新数据)
         #   打印当下需要看的数据
         print(datetime.datetime.now())
-        print('最新价：', df_15m['close'].iloc[-1])
-       # print('1分钟轨道值：', supertrend_1m.iloc[-3])  # 打印super上轨参照
-        print('3分钟轨道值：', supertrend_3m.iloc[-3])  # 打印super上轨参照
-        print('5分钟轨道值：', supertrend_5m.iloc[-3])  # 打印super上轨参照
-        print('15分钟轨道值：', supertrend_15m.iloc[-3])  # 打印super上轨参照
-        print('30分钟轨道值：', supertrend_30m.iloc[-3])  # 打印super上轨参照
+        print('最新价：', df_1m['close'].iloc[-1])
+        # print('1分钟轨道值：', supertrend_1m.iloc[-3])  # 打印super上轨参照
+        print('3分钟轨道值：', supertrend_3m.iloc[-2])  # 打印super上轨参照
+        print('5分钟轨道值：', supertrend_5m.iloc[-2])  # 打印super上轨参照
+        print('15分钟轨道值：', supertrend_15m.iloc[-2])  # 打印super上轨参照
+        print('30分钟轨道值：', supertrend_30m.iloc[-2])  # 打印super上轨参照
 
         #   第一套.策略……
         #   1. 反转，买入逻辑 30分进，30分出
@@ -70,64 +65,53 @@ class MyStrategy:
         #     # 更新打印语句以匹配新的策略命名规则
         #     strategy_name = "1_1"  # 根据update_position中的参数来构造策略名称
         #     self.update_position(strategy_name, 1)  # 买入信号
-        #     print(f"更新了空信号 {strategy_name}: {self.signals[strategy_name]}")  # 打印以确认
+        #     print(f"更新了信号 {strategy_name}: {self.signals[strategy_name]}")  # 打印以确认
 
-        # 1_1空单开仓逻辑：3分图进 3分出
-        if df_3m['close'].iloc[-3] >= supertrend_3m.iloc[-3] > df_3m['close'].iloc[-2]:
-            strategy_name = "1_1"  # 根据update_position中的参数来构造策略名称
-            self.update_position(strategy_name, -1)  # 卖出信号
-            print(f"更新了空信号 {strategy_name}: {self.signals[strategy_name]}")  # 打印以确认
-        #   空卖出逻辑： 5m跌破
-        if df_3m['close'].iloc[-2] > supertrend_3m.iloc[-3] > df_3m['close'].iloc[-3]:
-            strategy_name = "1_1"  # 根据update_position中的参数来构造策略名称
-            self.update_position(strategy_name, 1)  # 买入信号
-            print(f"更新了空信号 {strategy_name}: {self.signals[strategy_name]}")  # 打印以确认
-
-            # 1_2空开仓逻辑：5分图下破进 ，5分上破出
-        if df_5m['close'].iloc[-3] >= supertrend_5m.iloc[-3] > df_5m['close'].iloc[-2]:
-            strategy_name = "1_2"  # 根据update_position中的参数来构造策略名称
-            self.update_position(strategy_name, -1)  # 卖出信号
-            print(f"更新了空信号 {strategy_name}: {self.signals[strategy_name]}")  # 打印以确认
-            #   空卖出逻辑： 5m跌破
-        if df_5m['close'].iloc[-2] > supertrend_5m.iloc[-3] > df_5m['close'].iloc[-3]:
+        # 1_2开仓逻辑：5分图进 5分出
+        if df_5m['close'].iloc[-3] <= supertrend_5m.iloc[-3] < df_5m['close'].iloc[-2]:
             strategy_name = "1_2"  # 根据update_position中的参数来构造策略名称
             self.update_position(strategy_name, 1)  # 买入信号
-            print(f"更新了空信号 {strategy_name}: {self.signals[strategy_name]}")  # 打印以确认
+            print(f"更新了信号 {strategy_name}: {self.signals[strategy_name]}")  # 打印以确认
+            #   卖出逻辑： 5m跌破
+        if df_5m['close'].iloc[-2] < supertrend_5m.iloc[-3] < df_5m['close'].iloc[-3]:
+            strategy_name = "1_2"  # 根据update_position中的参数来构造策略名称
+            self.update_position(strategy_name, -1)  # 买入信号
+            print(f"更新了信号 {strategy_name}: {self.signals[strategy_name]}")  # 打印以确认
 
         #   1_3. 买入逻辑: 15m进15m出
-        if df_15m['close'].iloc[-3] > supertrend_15m.iloc[-3] > df_15m['close'].iloc[-2]:
-            strategy_name = "1_3"  # 根据update_position中的参数来构造策略名称
-            self.update_position(strategy_name, -1)  # 卖出信号
-            print(f"更新了空信号 {strategy_name}: {self.signals[strategy_name]}")  # 打印以确认
-            # 1_3平仓逻辑：15分 图super下穿
-        if df_15m['close'].iloc[-2] > supertrend_15m.iloc[-3] > df_15m['close'].iloc[-3]:
+        if df_15m['close'].iloc[-3] < supertrend_15m.iloc[-3] < df_15m['close'].iloc[-2]:
             strategy_name = "1_3"  # 根据update_position中的参数来构造策略名称
             self.update_position(strategy_name, 1)  # 买入信号
-            print(f"更新了空信号 {strategy_name}: {self.signals[strategy_name]}")  # 打印以确认
+            print(f"更新了信号 {strategy_name}: {self.signals[strategy_name]}")  # 打印以确认
+            # 1_4平仓逻辑：15分 图super下穿
+        if df_15m['close'].iloc[-2] < supertrend_15m.iloc[-3] < df_15m['close'].iloc[-3]:
+            strategy_name = "1_3"  # 根据update_position中的参数来构造策略名称
+            self.update_position(strategy_name, -1)  # 买入信号
+            print(f"更新了信号 {strategy_name}: {self.signals[strategy_name]}")  # 打印以确认
 
-        #   1_4. 买入逻辑：5分进，30分出，小时图收盘价小于sup，小时图收盘价还小于4小时
-        if (df_5m['close'].iloc[-3] >= supertrend_5m.iloc[-3] > df_5m['close'].iloc[-2]) \
-                and (df_5m['close'].iloc[-2] < supertrend_30m.iloc[-2]):
-            strategy_name = "1_4"  # 根据update_position中的参数来构造策略名称
-            self.update_position(strategy_name, -1)  # 卖出信号
-            print(f"更新了空信号 {strategy_name}: {self.signals[strategy_name]}")  # 打印以确认
-        #   1_4卖出逻辑：按照半小时图
-        if df_30m['close'].iloc[-2] > supertrend_30m.iloc[-3] > df_30m['close'].iloc[-3] \
-                or (df_15m['close'].iloc[-2] < (0.94 * supertrend_15m.iloc[-3])):  # 偏离2%
+        #   1_4. 买入逻辑：5分进，30分出，小时图收盘价大于sup，小时图收盘价还小于4小时
+        if (df_5m['close'].iloc[-3] <= supertrend_5m.iloc[-3] < df_5m['close'].iloc[-2]) \
+                and (df_5m['close'].iloc[-2] > supertrend_30m.iloc[-2]):
             strategy_name = "1_4"  # 根据update_position中的参数来构造策略名称
             self.update_position(strategy_name, 1)  # 买入信号
-            print(f"更新了空信号 {strategy_name}: {self.signals[strategy_name]}")  # 打印以确认
+            print(f"更新了信号 {strategy_name}: {self.signals[strategy_name]}")  # 打印以确认
+        #   卖出逻辑：按照半小时图
+        if df_30m['close'].iloc[-2] < supertrend_30m.iloc[-3] < df_30m['close'].iloc[-3] \
+                or (df_15m['close'].iloc[-2] < (0.98 * supertrend_15m.iloc[-3])):  # 小于suer止损
+            strategy_name = "1_4"  # 根据update_position中的参数来构造策略名称
+            self.update_position(strategy_name, -1)  # 买入信号
+            print(f"更新了信号 {strategy_name}: {self.signals[strategy_name]}")  # 打印以确认
 
         #   1_5. 买入逻辑：30分钟图进 30分钟图出
-        if df_30m['close'].iloc[-3] >= supertrend_30m.iloc[-3] > df_30m['close'].iloc[-2]:
-            strategy_name = "1_5"  # 根据update_position中的参数来构造策略名称
-            self.update_position(strategy_name, -1)  # 卖出信号
-            print(f"更新了空信号 {strategy_name}: {self.signals[strategy_name]}")  # 打印以确认
-        #   卖出逻辑：小时图下穿
-        if df_30m['close'].iloc[-2] > supertrend_30m.iloc[-3] > df_30m['close'].iloc[-3]:
+        if df_30m['close'].iloc[-3] <= supertrend_30m.iloc[-3] < df_30m['close'].iloc[-2]:
             strategy_name = "1_5"  # 根据update_position中的参数来构造策略名称
             self.update_position(strategy_name, 1)  # 买入信号
-            print(f"更新了空信号 {strategy_name}: {self.signals[strategy_name]}")  # 打印以确认
+            print(f"更新了信号 {strategy_name}: {self.signals[strategy_name]}")  # 打印以确认
+        #   卖出逻辑：小时图下穿
+        if df_30m['close'].iloc[-2] < supertrend_30m.iloc[-3] < df_30m['close'].iloc[-3]:
+            strategy_name = "1_5"  # 根据update_position中的参数来构造策略名称
+            self.update_position(strategy_name, -1)  # 买入信号
+            print(f"更新了信号 {strategy_name}: {self.signals[strategy_name]}")  # 打印以确认
 
     # #   第二套.趋势共振单信号函数
     # def calculate_signals_2(self):
@@ -143,32 +127,32 @@ class MyStrategy:
     #     # rsi_1h = self.indicators['rsi_1h']
     #
     #     #   5.  买入逻辑：顺势， 15分级别进出
-    #     if (df_15m['close'].iloc[-3] >= supertrend_15m.iloc[-3] > df_15m['close'].iloc[-2]) and \
+    #     if (df_15m['close'].iloc[-3] <= supertrend_15m.iloc[-3] < df_15m['close'].iloc[-2]) and \
     #             (df_1h['close'].iloc[-2] > df_1h['close'].iloc[-3] * 0.98):  # 这里用的小时图的值往下2%
     #         self.update_position('strategy2-1', 1)
     #     #   卖出逻辑：15分跌破
-    #     if df_15m['close'].iloc[-2] > supertrend_15m.iloc[-3] > df_15m['close'].iloc[-3]:
+    #     if df_15m['close'].iloc[-2] < supertrend_15m.iloc[-3] < df_15m['close'].iloc[-3]:
     #         self.update_position('strategy2-1', -1)
     #
     #     #   6.  买入逻辑：30分级别顺势
-    #     if (df_30m['close'].iloc[-3] >= supertrend_30m.iloc[-3] > df_30m['close'].iloc[-2]) and \
+    #     if (df_30m['close'].iloc[-3] <= supertrend_30m.iloc[-3] < df_30m['close'].iloc[-2]) and \
     #             (df_1h['close'].iloc[-2] > df_1h['close'].iloc[-3] * 0.98):  # 这里用的小时图的值往下2%
     #         self.update_position('strategy2-2', 1)
     #     #   卖出逻辑：30分跌破
-    #     if df_30m['close'].iloc[-2] > supertrend_30m.iloc[-3] > df_30m['close'].iloc[-3]:
+    #     if df_30m['close'].iloc[-2] < supertrend_30m.iloc[-3] < df_30m['close'].iloc[-3]:
     #         self.update_position('strategy2-2', -1)
     #
     #     #   7.  买入逻辑：小时级别  顺势
-    #     if (df_1h['close'].iloc[-3] > supertrend_1h.iloc[-3] > df_1h['close'].iloc[-2]) and \
+    #     if (df_1h['close'].iloc[-3] < supertrend_1h.iloc[-3] < df_1h['close'].iloc[-2]) and \
     #             (df_1h['close'].iloc[-2] > df_1h['close'].iloc[-3] * 0.98):  # 这里用的小时图的值往下2%
     #         self.update_position('strategy2-3', 1)
     #         #   卖出逻辑: SUPER跌破
-    #         if df_1h['close'].iloc[-2] > supertrend_1h.iloc[-3] > df_1h['close'].iloc[-3]:
+    #         if df_1h['close'].iloc[-2] < supertrend_1h.iloc[-3] < df_1h['close'].iloc[-3]:
     #             self.update_position('strategy2-3', -1)
     #
     #     # 第三套策略. rsi  震荡
     #     #   8.  买入逻辑：15分 RSI 超卖 和大趋势向上
-    #     if (rsi_15m.iloc[-3] > 30) and (df_1h['close'].iloc[-2] > df_1h['close'].iloc[-3] * 0.96):
+    #     if (rsi_15m.iloc[-3] < 30) and (df_1h['close'].iloc[-2] > df_1h['close'].iloc[-3] * 0.96):
     #         # 这里用的小时图的值往下2%
     #         self.update_position('strategy3-1', 1)
     #     #   卖出逻辑： 30分super跌破
