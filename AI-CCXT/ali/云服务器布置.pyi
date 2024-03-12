@@ -25,11 +25,12 @@
 
 
 # 打开文件夹路径
-#    cd ccxtALI/AI-CCXT/ali         cd ccxtALI/AI-CCXT/ali/sell
+#    cd ccxtALI/AI-CCXT/ali/buy        cd ccxtALI/AI-CCXT/ali/sell
 
 
 #  更新某个文件 先删除
-#    rm getData.py
+#    rm -rf ccxtALI    删除文件夹
+#    rm getData.py    删除文件
 #    先删除   因为 wget 通常用于下载文件或网页，而不是克隆 Git 仓库。
 #    wget https://raw.githubusercontent.com/tuotuo512/ccxtALI/master/AI-CCXT/ali/sell/run_sell.py
 #    wget https://raw.githubusercontent.com/tuotuo512/ccxtALI/master/AI-CCXT/ali/sell/SuperRsiTrend_sell.py
@@ -39,7 +40,7 @@
 
 # 新会话！回家看！
 #  1、在服务器上启动一个新的 screen 会话：     screen -S 123
-#  2、 在 screen 会话中运行您的脚本：  python3 run_sell.py
+#  2、 在 screen 会话中运行您的脚本：  python3 run.py    python3 run_sell.py
 #  3、所有会话列表   screen -ls
 #  断开会话：如果您想离开会话而保持它在后台运行，可以按下 Ctrl + A，然后按下 D。这会将您的 screen 会话放到后台。
 #  恢复会话：要恢复名为 123 的会话，可以使用以下命令：
