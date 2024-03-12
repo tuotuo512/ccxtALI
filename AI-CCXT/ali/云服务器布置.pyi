@@ -37,7 +37,7 @@
 #  运行
 #    python3 run_sell.py
 
-# 回家看
+# 新会话！回家看！
 #  1、在服务器上启动一个新的 screen 会话：     screen -S 123
 #  2、 在 screen 会话中运行您的脚本：  python3 run_sell.py
 #  3、所有会话列表   screen -ls

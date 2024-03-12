@@ -49,7 +49,6 @@ def rsi(data: pd.DataFrame, period=14):
     rsi = rsi_indicator.rsi()
     return rsi
 
-
 #
 # pd.options.mode.chained_assignment = None  # default='warn'
 #

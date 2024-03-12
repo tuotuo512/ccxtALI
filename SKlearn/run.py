@@ -1,8 +1,7 @@
 # 主程序运行
 import time
 import math
-
-from SuperRsiTrend_sell import MyStrategy
+from SuperRsiTrend import MyStrategy
 from getData import initialize_exchange, reconnect_exchange, fetch_and_process_market_data
 
 # 引入交易所设置
@@ -11,7 +10,7 @@ exchange = initialize_exchange()
 # 初始化仓位状态字典
 initialize_positions = {f"{i}_{j}": (0, 0) for i in range(1, 4) for j in range(1, 6)}
 
-XX = ' BTC/USDT:USDT'  # :USDT 代表永续或者其他交易对，例如 'ETH/USDT', 'BTC/USDT' 等
+XX = 'ETH/USDT:USDT'  # :USDT 代表永续或者其他交易对，例如 'ETH/USDT', 'BTC/USDT' 等
 
 # 假设信号从其他地方获得
 signals = {}  # 这将被设置为包含策略信号的字典
@@ -80,7 +79,7 @@ def run():
         print('===程序新开始===，总资金', total_capital)
 
         # 相当于杠杆  倍数
-        r_per = 8  # 设置为0.1，你愿意将总资金的10%用于单个交易；1表示一倍杠杆一单；极限持仓倍数就是 1*N个策略
+        r_per = 15  # 设置为0.1，你愿意将总资金的10%用于单个交易；1表示一倍杠杆一单；极限持仓倍数就是 1*N个策略
 
         #   币最新价
         close_price = df_1m['close'].iloc[-1]
@@ -127,23 +126,22 @@ def execute_trade(exchange, strategy, strategy_name, positions_state, position_s
     print(f"准备执行交易 - 策略名称: {strategy_name}, 信号: {signal}, 当下仓位: {position}")
 
     try:
-        if signal == -1 and position == 0:
+        if signal == 1 and position == 0 :
             # 买入逻辑，先检查资金是否足够
             if balance < cost:
                 print(f"资金不足，无法执行买入操作：{strategy_name}")
                 return  # 资金不足，直接返回，不执行交易
 
-            exchange.create_market_order(symbol=XX, side='sell', amount=position_size)
+            exchange.create_market_order(symbol=XX, side='buy', amount=position_size)
             positions_state[strategy_name] = (signal, position_size)  # 更新仓位状态
-            print(f'----------------------------------------成功卖入{strategy_name}:', position_size)
+            print(f'----------------------------------------成功买入{strategy_name}:', position_size)
             print(f'{strategy_name}上的仓位：', positions_state[strategy_name])
 
-        elif signal == 1 and position > 0:
+        elif signal == -1 and position > 0:
             # 卖出逻辑
-            exchange.create_market_order(symbol=XX, side='buy', amount=position)
-            print(f'---------------------------------------成功买出{strategy_name}:', position)
+            exchange.create_market_order(symbol=XX, side='sell', amount=position)
             positions_state[strategy_name] = (signal, 0)  # 清空仓位
-            print(f'{strategy_name}平仓后剩余:', positions_state[strategy_name])
+            print(f'---------------------------------------成功卖出{strategy_name}:', position)
 
     except Exception as e:
         print(f"执行交易时发生错误：{e}")
