@@ -66,17 +66,17 @@ class MyStrategy:
         #     strategy_name = "1_1"  # 根据update_position中的参数来构造策略名称
         #     self.update_position(strategy_name, 1)  # 买入信号
         #     print(f"更新了信号 {strategy_name}: {self.signals[strategy_name]}")  # 打印以确认
-
-        # 1_1开仓逻辑：3分图进 3分出
-        if df_3m['close'].iloc[-3] <= supertrend_3m.iloc[-3] < df_3m['close'].iloc[-2]:
-            strategy_name = "1_1"  # 根据update_position中的参数来构造策略名称
-            self.update_position(strategy_name, 1)  # 买入信号
-            print(f"更新了信号 {strategy_name}: {self.signals[strategy_name]}")  # 打印以确认
-        #   卖出逻辑： 5m跌破
-        if df_3m['close'].iloc[-2] < supertrend_3m.iloc[-3] < df_3m['close'].iloc[-3]:
-            strategy_name = "1_1"  # 根据update_position中的参数来构造策略名称
-            self.update_position(strategy_name, -1)  # 买入信号
-            print(f"更新了信号 {strategy_name}: {self.signals[strategy_name]}")  # 打印以确认
+        #
+        # # 1_1开仓逻辑：3分图进 3分出
+        # if df_3m['close'].iloc[-3] <= supertrend_3m.iloc[-3] < df_3m['close'].iloc[-2]:
+        #     strategy_name = "1_1"  # 根据update_position中的参数来构造策略名称
+        #     self.update_position(strategy_name, 1)  # 买入信号
+        #     print(f"更新了信号 {strategy_name}: {self.signals[strategy_name]}")  # 打印以确认
+        # #   卖出逻辑： 5m跌破
+        # if df_3m['close'].iloc[-2] < supertrend_3m.iloc[-3] < df_3m['close'].iloc[-3]:
+        #     strategy_name = "1_1"  # 根据update_position中的参数来构造策略名称
+        #     self.update_position(strategy_name, -1)  # 买入信号
+        #     print(f"更新了信号 {strategy_name}: {self.signals[strategy_name]}")  # 打印以确认
 
             # 1_2开仓逻辑：5分图进 5分出
         if df_5m['close'].iloc[-3] <= supertrend_5m.iloc[-3] < df_5m['close'].iloc[-2]:
