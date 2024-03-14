@@ -3,9 +3,11 @@ from sklearn.model_selection import train_test_split
 from sklearn.linear_model import LinearRegression
 from sklearn.metrics import mean_squared_error
 
+
+
 # 假设df是一个Pandas DataFrame，包含IDT1、IDT2、IDT3和目标列'target'
 # 加载数据
-# df = pd.read_csv('your_data.csv')
+df = pd.read_csv('your_data.csv')
 
 # 划分特征和目标变量
 X = df[['IDT1', 'IDT2', 'IDT3']]
