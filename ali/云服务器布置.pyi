@@ -25,18 +25,18 @@
 
 
 # 打开文件夹路径
-#    cd ccxtALI/AI-CCXT/ali/buy        cd ccxtALI/AI-CCXT/ali/sell
+#    cd ccxtALI/ali/buy        cd ccxtALI/ali/sell
 
 
 #  更新某个文件 先删除
 #    rm -rf ccxtALI    删除文件夹
 #    rm getData.py    删除文件
 #    先删除   因为 wget 通常用于下载文件或网页，而不是克隆 Git 仓库。
-#    wget https://raw.githubusercontent.com/tuotuo512/ccxtALI/master/AI-CCXT/ali/buy/run.py
-#    wget https://raw.githubusercontent.com/tuotuo512/ccxtALI/master/AI-CCXT/ali/buy/SuperRsiTrend.py
+#    wget https://raw.githubusercontent.com/tuotuo512/ccxtALI/master/ali/buy/run.py
+#    wget https://raw.githubusercontent.com/tuotuo512/ccxtALI/master/ali/buy/SuperRsiTrend.py
 
 #  运行
-#    python3 run_sell.py
+#    python3 run.py
 
 # 新会话！回家看！
 #  1、在服务器上启动一个新的 screen 会话：     screen -S 123
