@@ -42,9 +42,12 @@
 #  1、在服务器上启动一个新的 screen 会话：     screen -S 123
 #  2、 在 screen 会话中运行您的脚本：  python3 run.py    python3 run_sell.py
 #  3、所有会话列表   screen -ls
-#  断开会话：如果您想离开会话而保持它在后台运行，可以按下 Ctrl + A，然后按下 D。这会将您的 screen 会话放到后台。
+
 #  恢复会话：要恢复名为 123 的会话，可以使用以下命令：
 #  4、 回家后，重新连接到会话：     screen -r 123
+
+#  后台或者、断开会话：
+#  如果您想离开会话而保持它在后台运行，可以按下 Ctrl + A，然后按下 D。这会将您的 screen 会话放到后台。
 
 #  查看运行中的 run.py 进程
 #  ps aux | grep run_sell.py
