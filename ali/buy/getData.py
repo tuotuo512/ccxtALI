@@ -5,7 +5,7 @@ import pandas as pd
 import time
 import ccxt
 
-XX = 'AI/USDT:USDT'  # 或者其他交易对，例如 'ETH/USDT', 'UNI/USDT' 等
+XX = 'OP/USDT:USDT'  # 或者其他交易对，例如 'ETH/USDT', 'UNI/USDT' 等
 
 
 def initialize_exchange():

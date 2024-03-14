@@ -10,7 +10,7 @@ exchange = initialize_exchange()
 # 初始化仓位状态字典
 initialize_positions = {f"{i}_{j}": (0, 0) for i in range(1, 4) for j in range(1, 6)}
 
-XX = 'AI/USDT:USDT'  # :USDT 代表永续或者其他交易对，例如 'ETH/USDT', 'BTC/USDT' 等
+XX = 'OP/USDT:USDT'  # :USDT 代表永续或者其他交易对，例如 'ETH/USDT', 'BTC/USDT' 等
 
 # 假设信号从其他地方获得
 signals = {}  # 这将被设置为包含策略信号的字典
@@ -21,10 +21,10 @@ def manual_update_positions():
     global initialize_positions
     # 示例：手动设置策略 '1_1' 的仓位为某个值，信号保持不变
 
-    initialize_positions['1_1'] = (0, 0)  # 3m这里是手动填入 目前仓位持仓 1-1
+    initialize_positions['1_1'] = (1, 2)  # 3m这里是手动填入 目前仓位持仓 1-1
     initialize_positions['1_2'] = (0, 0)  # 5m                   1-2
     initialize_positions['1_3'] = (0, 0)  # 15m进 15m出            1-3
-    initialize_positions['1_4'] = (0, 0)  # 5进 30m出  顺势              1-4
+    initialize_positions['1_4'] = (1, 2)  # 5进 30m出  顺势              1-4
     initialize_positions['1_5'] = (0, 0)  # 30进 30m出              1-4
     #   2、顺势super
     initialize_positions['2_1'] = (0, 0)  # 这里15m图        2-1
@@ -79,14 +79,14 @@ def run():
         print('===程序新开始===，可用总资金', total_capital)
 
         # 相当于杠杆  倍数
-        r_per = 1.5  # 设置为0.1，你愿意将总资金的10%用于单个交易；1表示一倍杠杆一单；极限持仓倍数就是 1*N个策略
+        r_per = 5  # 设置为0.1，你愿意将总资金的10%用于单个交易；1表示一倍杠杆一单；极限持仓倍数就是 1*N个策略
 
         #   币最新价
         close_price = df_1m['close'].iloc[-1]
         #    仓位大小
         position_size = (total_capital * r_per) / close_price
 
-        min_position_size = 3  # XX最小下单量
+        min_position_size = 2  # XX最小下单量
 
         #   如果资金不够，只下单最小单，如果够了， 则（ xx保留????个小数点）
         if position_size < min_position_size:
@@ -94,7 +94,7 @@ def run():
         else:
             position_size = math.floor(
                 position_size / min_position_size) * min_position_size  # 返回 min_position_size 的倍数
-            position_size = round(position_size, 3)  # 保留小数点后1位
+            position_size = round(position_size, 0)  # 保留小数点后1位
         print('-------准备开仓仓位：', position_size, '-------')
         balance = exchange.fetch_balance()['free']['USDT']  # 获取可用USDT资金
         cost = position_size * close_price / (10 * r_per)  # 使用传入的close_price计算这次交易的成本
