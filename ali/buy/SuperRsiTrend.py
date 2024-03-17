@@ -48,6 +48,9 @@ class MyStrategy:
         supertrend_15m = self.indicators['supertrend_15m']
         supertrend_30m = self.indicators['supertrend_30m']
 
+        rsi_3m = self.indicators['rsi_3m']
+        rsi_15m = self.indicators['rsi_15m']
+
         # iloc[]用于基于整数位置的索引。它可以帮助你选择或操作数据。在iloc[]中，数字 -1代表最后一行(最新数据)
         #   打印当下需要看的数据
         print(datetime.datetime.now())
@@ -110,6 +113,18 @@ class MyStrategy:
         #   卖出逻辑：小时图下穿
         if df_30m['close'].iloc[-2] < supertrend_30m.iloc[-3] < df_30m['close'].iloc[-3]:
             strategy_name = "1_5"  # 根据update_position中的参数来构造策略名称
+            self.update_position(strategy_name, -1)  # 买入信号
+            print(f"更新了信号 {strategy_name}: {self.signals[strategy_name]}")  # 打印以确认
+
+        #   1_6. 买入逻辑：30分钟图进 30分钟图出
+        if rsi_3m.iloc[-3] < 30 and df_3m['close'].iloc[-3] > df_30m['close'].iloc[-3] * 0.97:
+            # 这里用的小时图的值往下2%
+            strategy_name = "1_6"
+            self.update_position(strategy_name, 1)  # 买入信号
+            print(f"更新了信号 {strategy_name}: {self.signals[strategy_name]}")  # 打印以确认
+        #   卖出逻辑： 30分super跌破
+        if df_3m['close'].iloc[-3] > df_30m['close'].iloc[-3] * 1.09:
+            strategy_name = "1_6"  # 根据update_position中的参数来构造策略名称
             self.update_position(strategy_name, -1)  # 买入信号
             print(f"更新了信号 {strategy_name}: {self.signals[strategy_name]}")  # 打印以确认
 

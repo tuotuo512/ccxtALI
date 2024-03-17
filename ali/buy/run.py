@@ -10,7 +10,7 @@ exchange = initialize_exchange()
 # 初始化仓位状态字典
 initialize_positions = {f"{i}_{j}": (0, 0) for i in range(1, 4) for j in range(1, 6)}
 
-XX = 'OP/USDT:USDT'  # :USDT 代表永续或者其他交易对，例如 'ETH/USDT', 'BTC/USDT' 等
+XX = 'AAVE/USDT:USDT'  # :USDT 代表永续或者其他交易对，例如 'ETH/USDT', 'BTC/USDT' 等
 
 # 假设信号从其他地方获得
 signals = {}  # 这将被设置为包含策略信号的字典
@@ -86,7 +86,7 @@ def run():
         #    仓位大小
         position_size = (total_capital * r_per) / close_price
 
-        min_position_size = 2  # XX最小下单量
+        min_position_size = 0.1  # XX最小下单量
 
         #   如果资金不够，只下单最小单，如果够了， 则（ xx保留????个小数点）
         if position_size < min_position_size:
