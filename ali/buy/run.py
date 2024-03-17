@@ -24,7 +24,7 @@ def manual_update_positions():
     initialize_positions['1_1'] = (1, 2)  # 3m这里是手动填入 目前仓位持仓 1-1
     initialize_positions['1_2'] = (0, 0)  # 5m                   1-2
     initialize_positions['1_3'] = (0, 0)  # 15m进 15m出            1-3
-    initialize_positions['1_4'] = (1, 2)  # 5进 30m出  顺势              1-4
+    initialize_positions['1_4'] = (0, 0)  # 5进 30m出  顺势              1-4
     initialize_positions['1_5'] = (0, 0)  # 30进 30m出              1-4
     #   2、顺势super
     initialize_positions['2_1'] = (0, 0)  # 这里15m图        2-1
@@ -94,7 +94,7 @@ def run():
         else:
             position_size = math.floor(
                 position_size / min_position_size) * min_position_size  # 返回 min_position_size 的倍数
-            position_size = round(position_size, 0)  # 保留小数点后1位
+            position_size = round(position_size, 1)  # 保留小数点后1位
         print('-------准备开仓仓位：', position_size, '-------')
         balance = exchange.fetch_balance()['free']['USDT']  # 获取可用USDT资金
         cost = position_size * close_price / (10 * r_per)  # 使用传入的close_price计算这次交易的成本
