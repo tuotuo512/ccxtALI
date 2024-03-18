@@ -51,7 +51,7 @@
 #  如果您想离开会话而保持它在后台运行，可以按下 Ctrl + A，然后按下 D。这会将您的 screen 会话放到后台。
 
 #  查看运行中的 run.py 进程
-#  ps aux | grep run_sell.py
+#  ps aux | grep run.py
 #  kill 000000
 
 #  查看IP  curl ifconfig.me

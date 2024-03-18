@@ -117,7 +117,7 @@ class MyStrategy:
             print(f"更新了信号 {strategy_name}: {self.signals[strategy_name]}")  # 打印以确认
 
         #   2_1. 买入逻辑：30分钟图进 30分钟图出
-        if rsi_3m.iloc[-3] < 30 and df_3m['close'].iloc[-3] > df_30m['close'].iloc[-3] * 0.97:
+        if rsi_3m.iloc[-3] < 30 and df_3m['close'].iloc[-3] > supertrend_30m.iloc[-3] * 0.97:
             # 这里用的小时图的值往下2%
             strategy_name = "2_1"
             self.update_position(strategy_name, 1)  # 买入信号
