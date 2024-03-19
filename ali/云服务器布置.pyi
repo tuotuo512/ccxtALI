@@ -59,5 +59,5 @@
 #  更新服务器仓库  git pull origin master
 
 #  打开编辑：
-#  nano run_sell.py     nano getData.py
+#  nano run.py     nano getData.py
 #  nano SuperRsiTrend_sell.py
