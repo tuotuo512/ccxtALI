@@ -10,7 +10,7 @@ exchange = initialize_exchange()
 # 初始化仓位状态字典
 initialize_positions = {f"{i}_{j}": (0, 0) for i in range(1, 4) for j in range(1, 6)}
 
-XX = 'AAVE/USDT:USDT'  # :USDT 代表永续或者其他交易对，例如 'ETH/USDT', 'BTC/USDT' 等
+XX = 'BOME/USDT:USDT'  # :USDT 代表永续或者其他交易对，例如 'ETH/USDT', 'BTC/USDT' 等   **********************************改动星标
 
 # 假设信号从其他地方获得
 signals = {}  # 这将被设置为包含策略信号的字典
@@ -79,14 +79,14 @@ def run():
         print('===程序新开始===，可用总资金', total_capital)
 
         # 相当于杠杆  倍数 **************************************** 星标
-        r_per = 3  # 设置为0.1，你愿意将总资金的10%用于单个交易；1表示一倍杠杆一单；极限持仓倍数就是 1*N个策略
+        r_per = 0.4  # 设置为0.1，你愿意将总资金的10%用于单个交易；1表示一倍杠杆一单；极限持仓倍数就是 1*N个策略
 
         #   币最新价
         close_price = df_1m['close'].iloc[-1]
         #    仓位大小
         position_size = (total_capital * r_per) / close_price
 
-        min_position_size = 0.1 # XX最小下单量   **********************************星标
+        min_position_size = 310 # XX最小下单量   **********************************星标
 
         #   如果资金不够，只下单最小单，如果够了， 则（ xx保留????个小数点）
         if position_size < min_position_size:
@@ -94,7 +94,7 @@ def run():
         else:
             position_size = math.floor(
                 position_size / min_position_size) * min_position_size  # 返回 min_position_size 的倍数
-            position_size = round(position_size, 1)  # 保留小数点后1位  **********************************星标
+            position_size = round(position_size, 0)  # 保留小数点后1位  **********************************星标
         print('-------准备开仓仓位：', position_size, '-------')
         balance = exchange.fetch_balance()['free']['USDT']  # 获取可用USDT资金
         cost = position_size * close_price / (10 * r_per)  # 使用传入的close_price计算这次交易的成本
