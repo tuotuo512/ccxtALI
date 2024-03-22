@@ -30,7 +30,7 @@
 
 #  更新某个文件 先删除
 #    rm -rf ccxtALI    删除文件夹
-#    rm getData.py    删除文件  rm SuperRsiTrend.py
+#    rm run.py    rm getData.py    删除文件  rm SuperRsiTrend.py
 #    先删除   因为 wget 通常用于下载文件或网页，而不是克隆 Git 仓库。
 #    wget https://raw.githubusercontent.com/tuotuo512/ccxtALI/master/ali/buy/run.py
 #    wget https://raw.githubusercontent.com/tuotuo512/ccxtALI/master/ali/buy/SuperRsiTrend.py
