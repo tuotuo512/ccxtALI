@@ -123,7 +123,7 @@ class MyStrategy:
             self.update_position(strategy_name, 1)  # 买入信号
             print(f"更新了信号 {strategy_name}: {self.signals[strategy_name]}")  # 打印以确认
         #   卖出逻辑： 30分super跌破
-        if df_3m['close'].iloc[-3] > df_30m['close'].iloc[-3] * 1.09:
+        if df_3m['close'].iloc[-3] > df_30m['close'].iloc[-3] * 1.09 and rsi_15m.iloc[-3] > 75:
             strategy_name = "2_1"  # 根据update_position中的参数来构造策略名称
             self.update_position(strategy_name, -1)  # 买入信号
             print(f"更新了信号 {strategy_name}: {self.signals[strategy_name]}")  # 打印以确认
