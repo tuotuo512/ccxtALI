@@ -60,7 +60,7 @@ def rsi(data: pd.DataFrame, period=14):
     Function to compute RSI
 
     Args:
-    data : pandas DataFrame with close data
+    data_layer : pandas DataFrame with close data_layer
     period : Period for RSI
     """
     rsi_indicator = RSIIndicator(data["close"], period)
@@ -73,25 +73,25 @@ pd.options.mode.chained_assignment = None  # default='warn'
 # df, df_15m, df_30m, df_1h, df_4h = get_data()
 #
 # ##防止修改原始文件
-# data = df.copy()
+# data_layer = df.copy()
 #
 # # 计算 supertrend
-# supertrend(data)
+# supertrend(data_layer)
 #
 # #这将会删除所有'supertrend'列的值为NaN的行
-# data['supertrend'].replace(0, np.nan, inplace=True)
-# data.dropna(subset=['supertrend'], inplace=True)
+# data_layer['supertrend'].replace(0, np.nan, inplace=True)
+# data_layer.dropna(subset=['supertrend'], inplace=True)
 #
 # plt.figure(figsize=(12,6))
-# plt.plot(data['close'], label='close')
-# plt.plot(data['supertrend'], label='supertrend', linestyle='--')
+# plt.plot(data_layer['close'], label='close')
+# plt.plot(data_layer['supertrend'], label='supertrend', linestyle='--')
 # plt.title('close Price / supertrend')
 # plt.legend(loc='upper left')
 # plt.grid(True)
 # plt.show()
 #
 # # Calculate supertrend
-# supertrend_values = supertrend(data)
+# supertrend_values = supertrend(data_layer)
 #
 # # Save as a pandas Series
 # supertrend_series = pd.Series(supertrend_values  , name="supertrend")
@@ -99,4 +99,4 @@ pd.options.mode.chained_assignment = None  # default='warn'
 # # Print the last 100 values
 # print(supertrend_series.tail(100))
 #
-# data.to_csv('df_1m.csv')
+# data_layer.to_csv('df_1m.csv')

@@ -60,7 +60,7 @@ def rsi(data: pd.DataFrame, period=14):
     Function to compute RSI
 
     Args:
-    data : pandas DataFrame with close data
+    data_layer : pandas DataFrame with close data_layer
     period : Period for RSI
     """
     rsi_indicator = RSIIndicator(data["close"], period)
@@ -85,7 +85,7 @@ data = df_15m.resample('15Min').agg({'open': 'first',
                                      'close': 'last',
                                      'volume': 'sum'})
 
-# supertrend(data) 是调用一个函数来计算超趋势指标，并返回一个结果
+# supertrend(data_layer) 是调用一个函数来计算超趋势指标，并返回一个结果
 supertrend(data)
 
 
