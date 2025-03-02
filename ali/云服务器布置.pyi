@@ -30,11 +30,11 @@
 
 #  更新某个文件 先删除
 #    rm -rf ccxtALI    删除文件夹
-#    rm getData.py    删除文件  rm SuperRsiTrend.py
+#    rm run.py    rm getData.py    删除文件  rm SuperRsiTrend.py
 #    先删除   因为 wget 通常用于下载文件或网页，而不是克隆 Git 仓库。
 #    wget https://raw.githubusercontent.com/tuotuo512/ccxtALI/master/ali/buy/run.py
-#    wget https://raw.githubusercontent.com/tuotuo512/ccxtALI/master/ali/buy/SuperRsiTrend.py
 #    wget https://raw.githubusercontent.com/tuotuo512/ccxtALI/master/ali/buy/getData.py
+#    wget https://raw.githubusercontent.com/tuotuo512/ccxtALI/master/ali/buy/SuperRsiTrend.py
 
 #  运行
 #    python3 run.py
@@ -51,7 +51,7 @@
 #  如果您想离开会话而保持它在后台运行，可以按下 Ctrl + A，然后按下 D。这会将您的 screen 会话放到后台。
 
 #  查看运行中的 run.py 进程
-#  ps aux | grep run_sell.py
+#  ps aux | grep run.py
 #  kill 000000
 
 #  查看IP  curl ifconfig.me
@@ -59,5 +59,5 @@
 #  更新服务器仓库  git pull origin master
 
 #  打开编辑：
-#  nano run_sell.py     nano getData.py
+#  nano run.py     nano getData.py
 #  nano SuperRsiTrend_sell.py
