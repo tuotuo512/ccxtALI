@@ -13,7 +13,7 @@ import pytz
 import logging
 
 # 导入配置
-from data_layer.config import EXCHANGE_CONFIG, DATA_CONFIG
+from DT.data_layer.config import EXCHANGE_CONFIG, DATA_CONFIG
 
 # 设置日志
 logger = logging.getLogger(__name__)
@@ -49,8 +49,15 @@ class HistoricalDataCollector:
         if self.exchange_name not in EXCHANGE_CONFIG:
             raise ValueError(f"不支持的交易所: {self.exchange_name}")
 
+        # 复制配置以避免修改原始配置
+        config = EXCHANGE_CONFIG[self.exchange_name].copy()
+
+        # 如果配置中包含代理设置相关的选项
+        if 'use_proxy' in EXCHANGE_CONFIG and EXCHANGE_CONFIG['use_proxy']:
+            config['proxies'] = EXCHANGE_CONFIG['proxy_settings']
+
         exchange_class = getattr(ccxt, self.exchange_name)
-        exchange = exchange_class(EXCHANGE_CONFIG[self.exchange_name])
+        exchange = exchange_class(config)
 
         # 尝试连接交易所
         self._reconnect_exchange(exchange)

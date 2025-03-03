@@ -6,7 +6,7 @@
 
 import pandas as pd
 import numpy as np
-import talib
+import pandas_ta as ta
 import logging
 
 # 设置日志
@@ -44,53 +44,37 @@ class DataTransformer:
 
         try:
             # 1. 移动平均线
-            result['MA5'] = talib.SMA(result['close'].values, timeperiod=5)
-            result['MA10'] = talib.SMA(result['close'].values, timeperiod=10)
-            result['MA20'] = talib.SMA(result['close'].values, timeperiod=20)
-            result['MA60'] = talib.SMA(result['close'].values, timeperiod=60)
+            result['MA5'] = ta.sma(result['close'], length=5)
+            result['MA10'] = ta.sma(result['close'], length=10)
+            result['MA20'] = ta.sma(result['close'], length=20)
+            result['MA60'] = ta.sma(result['close'], length=60)
 
             # 2. 指数移动平均线
-            result['EMA12'] = talib.EMA(result['close'].values, timeperiod=12)
-            result['EMA26'] = talib.EMA(result['close'].values, timeperiod=26)
+            result['EMA12'] = ta.ema(result['close'], length=12)
+            result['EMA26'] = ta.ema(result['close'], length=26)
 
             # 3. MACD
-            macd, macd_signal, macd_hist = talib.MACD(
-                result['close'].values,
-                fastperiod=12,
-                slowperiod=26,
-                signalperiod=9
-            )
-            result['MACD'] = macd
-            result['MACD_SIGNAL'] = macd_signal
-            result['MACD_HIST'] = macd_hist
+            macd = ta.macd(result['close'], fast=12, slow=26, signal=9)
+            result['MACD'] = macd['MACD_12_26_9']
+            result['MACD_SIGNAL'] = macd['MACDs_12_26_9']
+            result['MACD_HIST'] = macd['MACDh_12_26_9']
 
             # 4. RSI
-            result['RSI6'] = talib.RSI(result['close'].values, timeperiod=6)
-            result['RSI12'] = talib.RSI(result['close'].values, timeperiod=12)
-            result['RSI24'] = talib.RSI(result['close'].values, timeperiod=24)
+            result['RSI6'] = ta.rsi(result['close'], length=6)
+            result['RSI12'] = ta.rsi(result['close'], length=12)
+            result['RSI24'] = ta.rsi(result['close'], length=24)
 
             # 5. 布林带
-            upper, middle, lower = talib.BBANDS(
-                result['close'].values,
-                timeperiod=20,
-                nbdevup=2,
-                nbdevdn=2,
-                matype=0
-            )
-            result['BB_UPPER'] = upper
-            result['BB_MIDDLE'] = middle
-            result['BB_LOWER'] = lower
+            bbands = ta.bbands(result['close'], length=20, std=2)
+            result['BB_UPPER'] = bbands['BBU_20_2.0']
+            result['BB_MIDDLE'] = bbands['BBM_20_2.0']
+            result['BB_LOWER'] = bbands['BBL_20_2.0']
 
             # 6. ATR - 平均真实波幅
-            result['ATR'] = talib.ATR(
-                result['high'].values,
-                result['low'].values,
-                result['close'].values,
-                timeperiod=14
-            )
+            result['ATR'] = ta.atr(result['high'], result['low'], result['close'], length=14)
 
             # 7. OBV - 能量潮指标
-            result['OBV'] = talib.OBV(result['close'].values, result['volume'].values)
+            result['OBV'] = ta.obv(result['close'], result['volume'])
 
             logger.info("已添加基础技术指标")
 
@@ -115,44 +99,17 @@ class DataTransformer:
         result = df.copy()
 
         try:
-            # 1. ADX - 平均趋向指数
-            result['ADX'] = talib.ADX(
-                result['high'].values,
-                result['low'].values,
-                result['close'].values,
-                timeperiod=14
-            )
-
-            # 2. DI+ 和 DI-
-            result['PLUS_DI'] = talib.PLUS_DI(
-                result['high'].values,
-                result['low'].values,
-                result['close'].values,
-                timeperiod=14
-            )
-
-            result['MINUS_DI'] = talib.MINUS_DI(
-                result['high'].values,
-                result['low'].values,
-                result['close'].values,
-                timeperiod=14
-            )
+            # 使用pandas_ta计算ADX和方向指标
+            dmi = ta.adx(result['high'], result['low'], result['close'], length=14)
+            result['ADX'] = dmi['ADX_14']
+            result['PLUS_DI'] = dmi['DMP_14']
+            result['MINUS_DI'] = dmi['DMN_14']
 
             # 3. 抛物线转向指标 (SAR)
-            result['SAR'] = talib.SAR(
-                result['high'].values,
-                result['low'].values,
-                acceleration=0.02,
-                maximum=0.2
-            )
+            result['SAR'] = ta.psar(result['high'], result['low'])['PSARl_0.02_0.2']
 
             # 4. CCI - 顺势指标
-            result['CCI'] = talib.CCI(
-                result['high'].values,
-                result['low'].values,
-                result['close'].values,
-                timeperiod=14
-            )
+            result['CCI'] = ta.cci(result['high'], result['low'], result['close'], length=14)
 
             # 5. 价格位置（相对于移动平均线）
             if 'MA20' in result.columns:
@@ -189,11 +146,7 @@ class DataTransformer:
                 result[f'VOLATILITY_{period}'] = result['close'].rolling(window=period).std() / result['close']
 
             # 2. 真实波幅 (TR)
-            result['TR'] = talib.TRANGE(
-                result['high'].values,
-                result['low'].values,
-                result['close'].values
-            )
+            result['TR'] = ta.true_range(result['high'], result['low'], result['close'])
 
             # 3. 布林带宽度
             if all(x in result.columns for x in ['BB_UPPER', 'BB_LOWER', 'BB_MIDDLE']):
@@ -241,6 +194,17 @@ class DataTransformer:
 
             # 6. 价格波动范围比率
             result['RANGE_RATIO'] = (result['high'] - result['low']) / (result['open'] + result['close']) * 2
+
+            # 7. 钱德动量摆动指标 (CMO)
+            result['CMO'] = ta.cmo(result['close'], length=14)
+
+            # 8. 资金流量指标 (MFI)
+            result['MFI'] = ta.mfi(result['high'], result['low'], result['close'], result['volume'], length=14)
+
+            # 9. 漩涡指标 (Vortex)
+            vortex = ta.vortex(result['high'], result['low'], result['close'], length=14)
+            result['VORTEX_POS'] = vortex['VTXP_14']
+            result['VORTEX_NEG'] = vortex['VTXM_14']
 
             logger.info("已添加自定义指标")
 

@@ -7,17 +7,22 @@
 # 交易所配置
 EXCHANGE_CONFIG = {
     'binance': {
-        'apiKey': 'TwbrGtP4y4epwunioTQwVJu1MucF3lE8cTVIKswQ1PS6FNRPwRRnJIdmVPcJHBpd',
-        'secret': 'IbR2CmrZy7aisjKE9kpdFNgqTICyPi1fRyYqc14xv4XFStAeFeEpCS2nU9nRUTC7',
+        'apiKey': 'T780wE4qqCkGnEpoIGHA3fQJ8xqdYwPAm3fpCqqHTiCp8Hjm62RpYnTQ0FzBRa6y',
+        'secret': 'lUUaFJLLA4X5vesJa1gtEpE1beeaU7CMTBgOdKq6Aawljwal7CgGFvjieRw5oN1l',
         'timeout': 20000,
         'enableRateLimit': True,
         'options': {'defaultType': 'swap'},
+    },
+    'use_proxy': True,  # 是否使用代理
+    'proxy_settings': {
+        'http': 'http://127.0.0.1:18081',
+        'https': 'http://127.0.0.1:18081',
     }
 }
 
 # 数据采集配置
 DATA_CONFIG = {
-    'default_symbol': 'AAVE/USDT:USDT',  # 默认交易对
+    'default_symbol': 'BTC/USDT:USDT',  # 默认交易对
     'available_symbols': ['BTC/USDT:USDT', 'ETH/USDT:USDT', 'AAVE/USDT:USDT', 'UNI/USDT:USDT'],
     'timeframes': ['1m', '3m', '5m', '15m', '30m'],  # 支持的时间周期
     'default_limit': 1000,  # 每次请求的K线数量

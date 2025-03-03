@@ -11,7 +11,7 @@ from pymongo.errors import ConnectionFailure, DuplicateKeyError
 import logging
 from datetime import datetime
 
-from data_layer.config import DATABASE_CONFIG
+from DT.data_layer.config import DATABASE_CONFIG
 
 # 设置日志
 logger = logging.getLogger(__name__)
@@ -472,8 +472,8 @@ if __name__ == '__main__':
     logging.basicConfig(level=logging.INFO)
 
     # 导入历史数据和转换器
-    from data_layer.collectors.historical import HistoricalDataCollector
-    from data_layer.processors.transformer import DataTransformer
+    from DT.data_layer.collectors.historical import HistoricalDataCollector
+    from DT.data_layer.processors.transformer import DataTransformer
 
     # 获取历史数据
     collector = HistoricalDataCollector(symbol='BTC/USDT:USDT')
