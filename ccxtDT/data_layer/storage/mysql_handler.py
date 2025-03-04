@@ -4,14 +4,13 @@ MySQL数据库处理模块
 负责将市场数据保存到MySQL数据库
 """
 
-import pandas as pd
-import pymysql
 import logging
-from sqlalchemy import create_engine, MetaData, Table, Column, Integer, Float, String, DateTime, text
+
+import pandas as pd
+from data_layer.config import DATABASE_CONFIG
+from sqlalchemy import create_engine, Column, Integer, Float, String, DateTime
 from sqlalchemy.ext.declarative import declarative_base
 from sqlalchemy.orm import sessionmaker
-
-from data_layer.config import DATABASE_CONFIG
 
 # 设置日志
 logger = logging.getLogger(__name__)

@@ -4,10 +4,8 @@
 包含数字货币特有的基本面指标
 注意：对于加密货币，基本面因子与传统股票不同
 """
-import pandas as pd
 import numpy as np
-import requests
-from datetime import datetime, timedelta
+import pandas as pd
 
 
 class FundamentalFactors:

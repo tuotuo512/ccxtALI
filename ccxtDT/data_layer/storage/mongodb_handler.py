@@ -4,14 +4,13 @@ MongoDB数据库处理模块
 负责将市场数据和计算结果保存到MongoDB数据库
 """
 
-import pandas as pd
-import json
-from pymongo import MongoClient, ASCENDING, DESCENDING
-from pymongo.errors import ConnectionFailure, DuplicateKeyError
 import logging
 from datetime import datetime
 
+import pandas as pd
 from DT.data_layer.config import DATABASE_CONFIG
+from pymongo import MongoClient, ASCENDING
+from pymongo.errors import ConnectionFailure
 
 # 设置日志
 logger = logging.getLogger(__name__)
