@@ -4,7 +4,7 @@ import os
 def create_project_structure():
     # 定义项目结构
     structure = {
-        "DT": {
+        "ccxtDT": {
             "data_layer": {
                 "__init__.py": "",
                 "config.py": "",

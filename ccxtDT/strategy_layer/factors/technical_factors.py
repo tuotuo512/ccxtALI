@@ -3,8 +3,6 @@
 
 包含各种常用技术指标的计算函数
 """
-import pandas as pd
-import numpy as np
 import pandas_ta as ta
 
 
@@ -169,7 +167,7 @@ class TechnicalFactors:
 
         # 添加相对于布林带位置的指标 (0-100)
         result_df['bb_position'] = (result_df['close'] - result_df['bb_lower']) / (
-                    result_df['bb_upper'] - result_df['bb_lower']) * 100
+                result_df['bb_upper'] - result_df['bb_lower']) * 100
 
         # 添加CMF (Chaikin Money Flow)
         result_df['cmf'] = ta.cmf(high=result_df['high'], low=result_df['low'],

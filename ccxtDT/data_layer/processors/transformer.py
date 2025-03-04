@@ -4,10 +4,10 @@
 负责对清洗后的数据进行转换，计算技术指标和特征
 """
 
-import pandas as pd
-import numpy as np
-import pandas_ta as ta
 import logging
+
+import pandas as pd
+import pandas_ta as ta
 
 # 设置日志
 logger = logging.getLogger(__name__)

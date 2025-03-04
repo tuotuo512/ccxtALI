@@ -7,24 +7,21 @@
 import logging
 import time
 from datetime import datetime
-import pandas as pd
 
 # 导入数据层组件
 from data_layer.collectors.historical import HistoricalDataCollector
 from data_layer.collectors.realtime import RealtimeDataCollector
+# 导入配置
+from data_layer.config import DATA_CONFIG
 from data_layer.processors.cleaner import DataCleaner
 from data_layer.processors.transformer import DataTransformer
 from data_layer.storage.mongodb_handler import MongoDBHandler
-
-# 导入策略层组件
-from strategy_layer.factors.technical_factors import TechnicalFactors
-from strategy_layer.signals.trend_signals import TrendSignalGenerator
-from strategy_layer.signals.reversal_signals import ReversalSignalGenerator
 from strategy_layer.backtest.evaluator import StrategyEvaluator
 from strategy_layer.backtest.visualizer import StrategyVisualizer
-
-# 导入配置
-from data_layer.config import DATA_CONFIG
+# 导入策略层组件
+from strategy_layer.factors.technical_factors import TechnicalFactors
+from strategy_layer.signals.reversal_signals import ReversalSignalGenerator
+from strategy_layer.signals.trend_signals import TrendSignalGenerator
 
 # 设置日志
 logging.basicConfig(

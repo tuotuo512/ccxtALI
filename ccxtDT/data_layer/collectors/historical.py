@@ -4,16 +4,13 @@
 负责从交易所获取历史K线数据
 """
 
-import os
-import pandas as pd
-import time
-import ccxt
-from datetime import datetime, timedelta
-import pytz
 import logging
+import time
 
+import ccxt
+import pandas as pd
 # 导入配置
-from DT.data_layer.config import EXCHANGE_CONFIG, DATA_CONFIG
+from ccxtDT.data_layer.config import EXCHANGE_CONFIG, DATA_CONFIG
 
 # 设置日志
 logger = logging.getLogger(__name__)

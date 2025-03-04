@@ -1,8 +1,8 @@
-import ccxt
-import pandas as pd
 import logging
 from time import sleep
-from datetime import datetime, timedelta
+
+import ccxt
+import pandas as pd
 
 
 class DataCollector:

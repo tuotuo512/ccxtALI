@@ -3,8 +3,6 @@
 
 基于技术和基本面因子生成反转交易信号
 """
-import pandas as pd
-import numpy as np
 
 
 class ReversalSignalGenerator:

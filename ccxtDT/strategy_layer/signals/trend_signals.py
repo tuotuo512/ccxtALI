@@ -3,7 +3,6 @@
 
 基于技术和基本面因子生成趋势信号
 """
-import pandas as pd
 import numpy as np
 
 
