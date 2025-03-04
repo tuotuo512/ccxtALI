@@ -199,7 +199,8 @@ class DataTransformer:
             result['CMO'] = ta.cmo(result['close'], length=14)
 
             # 8. 资金流量指标 (MFI)
-            result['MFI'] = ta.mfi(result['high'], result['low'], result['close'], result['volume'], length=14)
+            result['MFI'] = ta.mfi(result['high'], result['low'], result['close'], result['volume'], length=14).astype(
+                'float64')
 
             # 9. 漩涡指标 (Vortex)
             vortex = ta.vortex(result['high'], result['low'], result['close'], length=14)
@@ -265,7 +266,7 @@ if __name__ == '__main__':
     logging.basicConfig(level=logging.INFO)
 
     # 导入示例数据
-    from data_layer.collectors.historical import HistoricalDataCollector
+    from DT.data_layer.collectors.historical import HistoricalDataCollector
 
     # 获取历史数据
     collector = HistoricalDataCollector()
