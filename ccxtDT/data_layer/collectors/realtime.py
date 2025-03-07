@@ -10,8 +10,8 @@ import time
 from datetime import datetime
 
 import pandas as pd
-from DT.data_layer.collectors.historical import HistoricalDataCollector
-from DT.data_layer.config import DATA_CONFIG
+from ..collectors.historical import HistoricalDataCollector
+from ..config import DATA_CONFIG
 
 # 设置日志
 logger = logging.getLogger(__name__)

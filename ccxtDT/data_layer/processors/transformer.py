@@ -264,21 +264,37 @@ class DataTransformer:
 if __name__ == '__main__':
     logging.basicConfig(level=logging.INFO)
 
-    # 导入示例数据
-    from data_layer.collectors.historical import HistoricalDataCollector
+    # 创建测试数据
+    import pandas as pd
+    import numpy as np
 
-    # 获取历史数据
-    collector = HistoricalDataCollector()
-    data = collector.fetch_ohlcv(timeframe='1h', limit=200)
+    # 创建模拟的OHLCV数据
+    np.random.seed(42)
+    dates = pd.date_range(start='2023-01-01', periods=200, freq='1H')
+    test_data = pd.DataFrame({
+        'open': np.random.normal(100, 5, 200),
+        'high': np.random.normal(105, 5, 200),
+        'low': np.random.normal(95, 5, 200),
+        'close': np.random.normal(100, 5, 200),
+        'volume': np.random.normal(1000, 200, 200)
+    }, index=dates)
+
+    # 确保high>low，high>open, high>close
+    for idx, row in test_data.iterrows():
+        max_val = max(row['open'], row['close']) + abs(np.random.normal(2, 1))
+        min_val = min(row['open'], row['close']) - abs(np.random.normal(2, 1))
+        test_data.loc[idx, 'high'] = max_val
+        test_data.loc[idx, 'low'] = min_val
+        test_data.loc[idx, 'volume'] = abs(test_data.loc[idx, 'volume'])
 
     # 创建转换器
     transformer = DataTransformer()
 
     # 添加所有指标
-    transformed_data = transformer.transform_data(data)
+    transformed_data = transformer.transform_data(test_data)
 
     # 打印转换后的数据信息
-    print(f"原始数据列: {data.columns.tolist()}")
+    print(f"原始数据列: {test_data.columns.tolist()}")
     print(f"转换后数据列: {transformed_data.columns.tolist()}")
     print(f"转换后数据行数: {len(transformed_data)}")
     print("\n前5行数据:")

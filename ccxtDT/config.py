@@ -2,10 +2,18 @@
 
 # 交易所配置
 EXCHANGE_CONFIG = {
-    'name': 'binance',
-    'api_key': '',  # 填入API密钥
-    'api_secret': '',  # 填入API密钥
-    'test_mode': True  # 测试模式
+    'binance': {
+        'apiKey': 'T780wE4qqCkGnEpoIGHA3fQJ8xqdYwPAm3fpCqqHTiCp8Hjm62RpYnTQ0FzBRa6y',
+        'secret': 'lUUaFJLLA4X5vesJa1gtEpE1beeaU7CMTBgOdKq6Aawljwal7CgGFvjieRw5oN1l',
+        'timeout': 20000,
+        'enableRateLimit': True,
+        'options': {'defaultType': 'swap'},
+    },
+    'use_proxy': True,  # 是否使用代理
+    'proxy_settings': {
+        'http': 'http://127.0.0.1:18081',
+        'https': 'http://127.0.0.1:18081',
+    }
 }
 
 # 交易配置
@@ -24,3 +32,5 @@ DB_CONFIG = {
         'db_name': 'crypto_trading'
     }
 }
+
+

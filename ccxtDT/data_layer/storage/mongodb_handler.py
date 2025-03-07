@@ -8,7 +8,7 @@ import logging
 from datetime import datetime
 
 import pandas as pd
-from DT.data_layer.config import DATABASE_CONFIG
+from ..config import DATABASE_CONFIG
 from pymongo import MongoClient, ASCENDING
 from pymongo.errors import ConnectionFailure
 

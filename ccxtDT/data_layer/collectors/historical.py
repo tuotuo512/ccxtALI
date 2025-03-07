@@ -7,10 +7,11 @@
 import logging
 import time
 
+
 import ccxt
 import pandas as pd
 # 导入配置
-from ccxtDT.data_layer.config import EXCHANGE_CONFIG, DATA_CONFIG
+from ..config import EXCHANGE_CONFIG, DATA_CONFIG
 
 # 设置日志
 logger = logging.getLogger(__name__)
